@@ -7,8 +7,8 @@ set -euo pipefail
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 echo ""
-echo "Sprout Prototyping Workspace"
-echo "============================"
+echo "Sprout Aurora"
+echo "============="
 echo ""
 
 mkdir -p "$HOME/.claude/skills"

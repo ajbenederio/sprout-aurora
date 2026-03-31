@@ -1,4 +1,4 @@
-# Sprout Design Agent
+# Sprout Aurora
 
 > A Claude Code workspace for research-informed product design prototyping — runs a three-agent pipeline from PRD to working Vue 3 components, powered by the Sprout Design System.
 
