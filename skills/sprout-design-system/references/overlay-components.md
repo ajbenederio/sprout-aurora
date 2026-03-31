@@ -244,6 +244,8 @@ A low-level utility for positioning floating elements relative to reference elem
 
 A toast notification component for displaying messages and performing actions, using Teleport to attach to the document body.
 
+> ⚠️ **Required setup:** `createPinia()` must be called before `app.use(SproutDesignSystem)` or the snackbar store will throw on mount. Both the ref-based invocation (`snackbar.value.showSnackbar()`) and the store-based invocation (`useSnackbarStore()` from `design-system-next`) require `<spr-snackbar />` to be mounted somewhere in the component tree, and both require Pinia initialized first. See the Snackbar section in `sprout-design-system/SKILL.md` for the store-based pattern.
+
 ### Basic Usage
 
 ```vue
@@ -341,7 +343,7 @@ const isSidepanelOpen = ref(false);
 |------|------|---------|-------------|
 | is-open | boolean | false | Controls whether the sidepanel is open or closed. |
 | header-title | string | 'Sidepanel Header' | Title text displayed in the header. |
-| headerSubtitle | string | - | Subtitle text displayed under the header title. |
+| header-subtitle | string | - | Subtitle text displayed under the header title. |
 | size | 'sm' \| 'md' \| 'lg' | 'sm' | Width of the sidepanel: sm (360px), md (420px), lg (480px). |
 | height | string \| number | 'calc(100vh - 32px)' | Height of the sidepanel. Number is treated as pixels; string accepts CSS units. |
 | hide-header | boolean | false | When true, hides the default header section. |
@@ -351,11 +353,11 @@ const isSidepanelOpen = ref(false);
 | escape-close | boolean | true | Allows closing by pressing the ESC key. |
 | is-stacking | boolean | false | Enables stacking behavior for nested panels. |
 | footer-no-padding | boolean | false | Removes default padding from the footer section. |
-| footerNoTopBorder | boolean | false | Removes the top border from the footer. |
-| isExpandable | boolean | false | Renders an expand/shrink icon in the header. |
-| isExpanded | boolean | false | Whether the sidepanel is currently expanded. |
-| isActivePanel | boolean | false | Whether this panel is the active one in a stacked configuration. |
-| isLoading | boolean | false | When true, renders skeleton loaders in the header. |
+| footer-no-top-border | boolean | false | Removes the top border from the footer. |
+| is-expandable | boolean | false | Renders an expand/shrink icon in the header. |
+| is-expanded | boolean | false | Whether the sidepanel is currently expanded. |
+| is-active-panel | boolean | false | Whether this panel is the active one in a stacked configuration. |
+| is-loading | boolean | false | When true, renders skeleton loaders in the header. |
 
 ### Events
 

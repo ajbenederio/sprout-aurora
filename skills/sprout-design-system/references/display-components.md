@@ -268,7 +268,7 @@ Status labels with support for icons, images, avatars, interactive states, and l
 |------|-------------|
 | icon | Custom content for the prefix icon area (before the label). |
 | avatar | Custom content for the avatar area. |
-| postfixIcon | Custom content for the postfix icon area (after the label). |
+| postfixIcon | Custom content for the postfix icon area (after the label). Use `#postfixIcon` (camelCase). Browser-confirmed: `#postfix-icon` (kebab-case) does not render. |
 
 ---
 
@@ -327,7 +327,7 @@ Informs users when no content is available, with optional imagery and action but
 
 ```vue
 <template>
-  <spr-empty-state description="No results found" subDescription="Try a different search term">
+  <spr-empty-state description="No results found" sub-description="Try a different search term">
     <template #button>
       <spr-button tone="success">Retry</spr-button>
     </template>
@@ -340,11 +340,11 @@ Informs users when no content is available, with optional imagery and action but
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | description | `string` | `'No results found'` | Main description text displayed prominently. |
-| subDescription | `string` | `'Try a different search term.'` | Secondary text providing additional context below the description. |
+| sub-description | `string` | `'Try a different search term.'` | Secondary text providing additional context below the description. |
 | size | `'small' \| 'large'` | `'small'` | Overall size. small: min-height 240px, image 120x120px. large: min-height 360px, image 200x200px. |
 | image | `string` | `'list'` | Predefined image name. Available: `bug`, `clock`, `dashboard`, `employees`, `government-id`, `integration`, `list`, `social-media-handles`, `work-in-progress`, `work-location`. |
-| hasButton | `boolean` | `false` | Indicates whether the empty state includes a button. |
-| emptyStateCustomClasses | `string` | `''` | Additional CSS classes for the container. |
+| has-button | `boolean` | `false` | Indicates whether the empty state includes a button. |
+| empty-state-custom-classes | `string` | `''` | Additional CSS classes for the container. |
 
 ### Events
 
@@ -357,7 +357,7 @@ Informs users when no content is available, with optional imagery and action but
 | Name | Description |
 |------|-------------|
 | default | Replaces the predefined image with custom content. Receives size classes based on `size` prop. |
-| button | Action buttons or interactive elements displayed below the description. |
+| button | Action buttons or interactive elements displayed below the description. **Requires `has-button` to be `true` to render.** |
 
 ---
 
@@ -369,7 +369,7 @@ Displays a chronological log of changes made to a record with expandable entries
 
 ```vue
 <template>
-  <SprAuditTrail :auditTrailLogs="logs" />
+  <spr-audit-trail :audit-trail-logs="logs" />
 </template>
 
 <script setup lang="ts">
@@ -393,5 +393,5 @@ const logs = [
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| auditTrailLogs | `{ userName: string; title: string; avatarUrl?: string; logs: { label: string[]; oldValue: string; newValue: string; }[]; }[]` | `[]` | List of audit trail log entries. If avatarUrl is not provided, a default avatar with initials based on userName is rendered. |
+| audit-trail-logs | `{ userName: string; title: string; avatarUrl?: string; logs: { label: string[]; oldValue: string; newValue: string; }[]; }[]` | `[]` | List of audit trail log entries. If avatarUrl is not provided, a default avatar with initials based on userName is rendered. |
 | alwaysOpen | `boolean` | `true` | When true, log entries remain opened when opening another entry. |

@@ -15,7 +15,7 @@ description: >
 
 # Sprout Design System
 
-> **Skill version:** 2.0.0 | **Generated from design-system-next:** v2.27.2
+> **Skill version:** 2.0.1 | **Generated from design-system-next:** v2.27.2
 
 ## Installation & Setup
 
@@ -102,7 +102,7 @@ import { Icon } from '@iconify/vue';
 <template>
   <Icon icon="ph:trash" />
   <Icon icon="ph:pencil" class="spr-text-color-brand-base" />
-  <spr-button hasIcon>
+  <spr-button has-icon>
     <Icon icon="ph:plus" />
     Add Item
   </spr-button>
@@ -200,10 +200,8 @@ Load the appropriate reference file based on what component you need:
 ```vue
 <template>
   <spr-button @click="showModal = true">Open Modal</spr-button>
-  <spr-modal v-model:show="showModal" title="Edit Record">
-    <template #body>
-      <spr-input v-model="value" label="Name" />
-    </template>
+  <spr-modal v-model="showModal" title="Edit Record">
+    <spr-input v-model="value" label="Name" />
     <template #footer>
       <spr-button variant="secondary" @click="showModal = false">Cancel</spr-button>
       <spr-button tone="success" @click="save">Save</spr-button>
@@ -216,19 +214,38 @@ Load the appropriate reference file based on what component you need:
 
 ```vue
 <template>
-  <spr-table :headers="headers" :items="items">
+  <spr-table :headers="headers" :data-table="items">
     <template #actions="{ item }">
-      <spr-button size="small" variant="tertiary" hasIcon>
+      <spr-button size="small" variant="tertiary" has-icon>
         <Icon icon="ph:pencil" />
       </spr-button>
     </template>
   </spr-table>
   <spr-table-pagination
-    v-model:page="page"
+    v-model:selected-row-count="selectedRowCount"
+    v-model:current-page="currentPage"
     :total-items="totalItems"
-    :items-per-page="10"
+    :dropdown-selection="dropdownSelection"
+    @previous="handlePrevious"
+    @next="handleNext"
   />
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { Icon } from '@iconify/vue';
+
+const totalItems = ref(100);
+const currentPage = ref(1);
+const selectedRowCount = ref(10);
+const dropdownSelection = [
+  { text: '10', value: '10' },
+  { text: '20', value: '20' },
+  { text: '50', value: '50' },
+];
+const handlePrevious = () => { if (currentPage.value > 1) currentPage.value--; };
+const handleNext = () => { if (currentPage.value * selectedRowCount.value < totalItems.value) currentPage.value++; };
+</script>
 ```
 
 ## Sprout Products
