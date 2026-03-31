@@ -1,0 +1,6 @@
+{
+  "enabledMcpjsonServers": [
+    "design-system-next",
+    "figma"
+  ]
+}
