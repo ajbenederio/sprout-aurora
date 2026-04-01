@@ -1,95 +1,34 @@
 <template>
   <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
 
-    <!-- Basic with v-model -->
-    <spr-input
-      id="basic"
-      v-model="value"
-      label="Basic Input"
-      placeholder="Type something..."
-    />
+    <!-- Variants -->
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <spr-badge text="Brand" variant="brand" />
+      <spr-badge text="Neutral" variant="neutral" />
+      <spr-badge text="Danger" variant="danger" />
+      <spr-badge text="Disabled" variant="disabled" />
+      <spr-badge text="Info" variant="information" />
+    </div>
 
-    <!-- Supporting label -->
-    <spr-input
-      id="supporting"
-      v-model="value"
-      label="With Supporting Label"
-      supportingLabel="This is a supporting label"
-      placeholder="Type something..."
-    />
+    <!-- Sizes -->
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <spr-badge text="Tiny" size="tiny" />
+      <spr-badge text="Small" size="small" />
+      <spr-badge text="Big" size="big" />
+    </div>
 
-    <!-- Char count -->
-    <spr-input
-      id="charcount"
-      v-model="value"
-      label="Char Count"
-      :showCharCount="true"
-      :maxLength="50"
-      placeholder="Max 50 chars..."
-    />
-
-    <!-- Error state -->
-    <spr-input
-      id="error"
-      v-model="value"
-      label="Error State"
-      :error="true"
-      placeholder="Something went wrong..."
-    />
-
-    <!-- Disabled -->
-    <spr-input
-      id="disabled"
-      v-model="value"
-      label="Disabled"
-      :disabled="true"
-      placeholder="Disabled..."
-    />
-
-    <!-- Readonly -->
-    <spr-input
-      id="readonly"
-      v-model="value"
-      label="Readonly"
-      :readonly="true"
-      placeholder="Readonly..."
-    />
-
-    <!-- Helper text -->
-    <spr-input
-      id="helper"
-      v-model="value"
-      label="With Helper"
-      :displayHelper="true"
-      helperText="This is helper text"
-      placeholder="Has helper..."
-    />
-
-    <!-- Prefix and trailing slots -->
-    <spr-input
-      id="slots"
-      v-model="value"
-      label="Prefix + Trailing Slots"
-      placeholder="With slots..."
-    >
-      <template #prefix>PFX</template>
-      <template #trailing>SFX</template>
-    </spr-input>
-
-    <!-- Active prop -->
-    <spr-input
-      id="active"
-      v-model="value"
-      label="Active prop"
-      :active="true"
-      placeholder="Active..."
-    />
+    <!-- Position — wrapping a target element -->
+    <div style="display: flex; gap: 32px; align-items: center;">
+      <spr-badge text="5" position="top">
+        <div style="width: 40px; height: 40px; background: #eee;" />
+      </spr-badge>
+      <spr-badge text="5" position="bottom">
+        <div style="width: 40px; height: 40px; background: #eee;" />
+      </spr-badge>
+      <spr-badge text="5" position="default">
+        <div style="width: 40px; height: 40px; background: #eee;" />
+      </spr-badge>
+    </div>
 
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const value = ref('')
-</script>
