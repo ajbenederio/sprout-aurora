@@ -1,24 +1,38 @@
 <template>
-  <div style="padding: 24px;">
-    <spr-accordion
-      :accordionItems="items"
-      :isDefaultOpen="false"
-      :alwaysOpen="false"
-      :bordered="true"
-      accordionTrigger="button"
-    >
-      <template v-for="item in items" #[item.collapseId] :key="item.collapseId">
-        Content for {{ item.title }}
-      </template>
-    </spr-accordion>
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+
+    <!-- Variants -->
+    <spr-button variant="primary" tone="neutral">Primary Neutral</spr-button>
+    <spr-button variant="secondary" tone="neutral">Secondary Neutral</spr-button>
+    <spr-button variant="tertiary" tone="neutral">Tertiary Neutral</spr-button>
+
+    <!-- Tones -->
+    <spr-button tone="success">Success</spr-button>
+    <spr-button tone="danger">Danger</spr-button>
+
+    <!-- Sizes -->
+    <spr-button size="small">Small</spr-button>
+    <spr-button size="medium">Medium</spr-button>
+    <spr-button size="large">Large</spr-button>
+
+    <!-- States -->
+    <spr-button :disabled="true">Disabled</spr-button>
+    <spr-button :fullwidth="true">Full Width</spr-button>
+
+    <!-- State prop -->
+    <spr-button state="hover">State: hover</spr-button>
+
+    <!-- hasIcon -->
+    <spr-button :hasIcon="true">Has Icon</spr-button>
+
+    <!-- Emit -->
+    <spr-button @click="handleClick">Click me</spr-button>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import type { AccordionItem } from 'design-system-next'
-
-const items: AccordionItem[] = [
-  { title: 'Section 1', collapseId: 'section-1' },
-  { title: 'Section 2', subtitle: 'Optional subtitle', collapseId: 'section-2' },
-]
+const handleClick = (e: MouseEvent) => {
+  console.log('clicked', e)
+}
 </script>
