@@ -1,36 +1,34 @@
 <template>
-  <div style="padding: 48px; display: flex; gap: 48px; flex-wrap: wrap;">
-
-    <!-- Text prop -->
-    <spr-tooltip text="Tooltip via text prop" placement="top">
-      <spr-button>Hover me (text prop)</spr-button>
-    </spr-tooltip>
-
-    <!-- popper-content slot -->
-    <spr-tooltip placement="top">
-      <spr-button>Hover me (slot)</spr-button>
-      <template #popper-content>
-        <strong>Custom</strong> tooltip content
-      </template>
-    </spr-tooltip>
-
-    <!-- Placement variants -->
-    <spr-tooltip text="Bottom tooltip" placement="bottom">
-      <spr-button>Bottom</spr-button>
-    </spr-tooltip>
-
-    <spr-tooltip text="Right tooltip" placement="right">
-      <spr-button>Right</spr-button>
-    </spr-tooltip>
-
-    <spr-tooltip text="Left tooltip" placement="left">
-      <spr-button>Left</spr-button>
-    </spr-tooltip>
-
-    <!-- Click trigger -->
-    <spr-tooltip text="Click tooltip" showTriggers="click" hideTriggers="click">
-      <spr-button>Click me</spr-button>
-    </spr-tooltip>
-
+  <div style="padding: 48px;">
+    <spr-button variant="primary">
+      Actions
+      <spr-button-dropdown
+        :model-value="selected"
+        dropdown-id="dropdown-1"
+        :menu-list="menuItems"
+        @update:model-value="onSelect"
+      />
+    </spr-button>
+    <div style="margin-top: 16px;">Selected: {{ JSON.stringify(selected) }}</div>
   </div>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+
+const selected = ref([])
+const menuItems = [
+  { label: 'Option 1', value: 'opt1' },
+  { label: 'Option 2', value: 'opt2' },
+  { label: 'Option 3', value: 'opt3' },
+]
+
+const onSelect = (item) => {
+  const exists = selected.value.findIndex(i => i.value === item.value)
+  if (exists >= 0) {
+    selected.value.splice(exists, 1)
+  } else {
+    selected.value.push(item)
+  }
+}
+</script>
