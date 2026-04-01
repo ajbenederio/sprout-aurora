@@ -1,34 +1,25 @@
 <template>
-  <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 32px;">
 
-    <!-- Variants -->
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <spr-badge text="Brand" variant="brand" />
-      <spr-badge text="Neutral" variant="neutral" />
-      <spr-badge text="Danger" variant="danger" />
-      <spr-badge text="Disabled" variant="disabled" />
-      <spr-badge text="Info" variant="information" />
+    <!-- Test: activeTab as index string -->
+    <div>
+      <p>activeTab="1" (index)</p>
+      <spr-tabs :list="tabs" activeTab="1" />
     </div>
 
-    <!-- Sizes -->
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <spr-badge text="Tiny" size="tiny" />
-      <spr-badge text="Small" size="small" />
-      <spr-badge text="Big" size="big" />
-    </div>
-
-    <!-- Position — wrapping a target element -->
-    <div style="display: flex; gap: 32px; align-items: center;">
-      <spr-badge text="5" position="top">
-        <div style="width: 40px; height: 40px; background: #eee;" />
-      </spr-badge>
-      <spr-badge text="5" position="bottom">
-        <div style="width: 40px; height: 40px; background: #eee;" />
-      </spr-badge>
-      <spr-badge text="5" position="default">
-        <div style="width: 40px; height: 40px; background: #eee;" />
-      </spr-badge>
+    <!-- Test: activeTab as label text -->
+    <div>
+      <p>activeTab="Tab Two" (label text)</p>
+      <spr-tabs :list="tabs" activeTab="Tab Two" />
     </div>
 
   </div>
 </template>
+
+<script setup lang="ts">
+const tabs = [
+  { label: 'Tab One', value: 'tab1' },
+  { label: 'Tab Two', value: 'tab2' },
+  { label: 'Tab Three', value: 'tab3' },
+]
+</script>

@@ -1,81 +1,109 @@
-# Aurora Initiative · Reference Card Build — Deferred & Flagged Components
-**Last updated: 2026-04-01**
-Branch: `refactor/2-improve-design-system-inaccuracies`
+<template>
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
 
-This file is the source of truth for all deferred harness runs and flagged items discovered during reference card builds. Update this file whenever a new flag is added.
+    <!-- String array options -->
+    <spr-select
+      id="basic"
+      v-model="selected1"
+      :options="stringOptions"
+      label="String Options"
+      placeholder="Select one..."
+    />
 
----
+    <!-- Object options with textField/valueField -->
+    <spr-select
+      id="object"
+      v-model="selected2"
+      :options="objectOptions"
+      textField="label"
+      valueField="id"
+      label="Object Options"
+      placeholder="Select one..."
+    />
 
-## Legend
-- 🔴 **Blocked** — cannot write card without harness run
-- 🟡 **Flagged** — card written from MCP data but browser-unverified; flag if used in prototype generation
-- 🟢 **Queued** — no props in MCP; needs standalone harness run before card can be written
+    <!-- Searchable -->
+    <spr-select
+      id="searchable"
+      v-model="selected3"
+      :options="stringOptions"
+      label="Searchable"
+      placeholder="Search and select..."
+      :searchable="true"
+    />
 
----
+    <!-- Clearable -->
+    <spr-select
+      id="clearable"
+      v-model="selected4"
+      :options="stringOptions"
+      label="Clearable"
+      placeholder="Select then clear..."
+      :clearable="true"
+    />
 
-## Deferred Components
+    <!-- Error state -->
+    <spr-select
+      id="error"
+      v-model="selected5"
+      :options="stringOptions"
+      label="Error State"
+      :error="true"
+      placeholder="Error..."
+    />
 
-### `spr-button-dropdown`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-button` (subcomponent)
-- **Issue:** No documented props in MCP — empty subcomponent entry
-- **Action:** Standalone harness run, or fold in when encountered in prototype context
+    <!-- Disabled -->
+    <spr-select
+      id="disabled"
+      v-model="selected6"
+      :options="stringOptions"
+      label="Disabled"
+      :disabled="true"
+      placeholder="Disabled..."
+    />
 
----
+    <!-- Helper text -->
+    <spr-select
+      id="helper"
+      v-model="selected7"
+      :options="stringOptions"
+      label="With Helper"
+      :displayHelper="true"
+      helperText="Choose wisely"
+      placeholder="Has helper..."
+    />
 
-### `spr-input-dropdown`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** No documented props in MCP
-- **Action:** Harness run needed before card can be written
+    <!-- groupItemsBy -->
+    <spr-select
+      id="grouped"
+      v-model="selected8"
+      :options="stringOptions"
+      label="Grouped A-Z"
+      groupItemsBy="A-Z"
+      placeholder="Grouped..."
+    />
 
-### `spr-input-email`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** No documented props in MCP
-- **Action:** Harness run needed before card can be written
+    <div>Selected values: {{ { selected1, selected2, selected3, selected4 } }}</div>
 
-### `spr-input-password`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** No documented props in MCP
-- **Action:** Harness run needed before card can be written
+  </div>
+</template>
 
-### `spr-input-search`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** No documented props in MCP
-- **Action:** Harness run needed before card can be written
+<script setup lang="ts">
+import { ref } from 'vue'
 
-### `spr-input-url`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** No documented props in MCP
-- **Action:** Harness run needed before card can be written
+const selected1 = ref('')
+const selected2 = ref('')
+const selected3 = ref('')
+const selected4 = ref('')
+const selected5 = ref('')
+const selected6 = ref('')
+const selected7 = ref('')
+const selected8 = ref('')
 
-### `spr-input-username`
-- **Status:** 🟢 Queued
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** No documented props in MCP
-- **Action:** Harness run needed before card can be written
+const stringOptions = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry']
 
----
-
-## Flagged — MCP Data Only, Browser-Unverified
-
-### `spr-input-contact-number`
-- **Status:** 🟡 Flagged
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** Full props available in MCP but never run in test harness
-- **Action:** Verify in harness if used in prototype generation
-
-### `spr-input-currency`
-- **Status:** 🟡 Flagged
-- **Parent:** `spr-input` (subcomponent)
-- **Issue:** Full props available in MCP but never run in test harness
-- **Action:** Verify in harness if used in prototype generation
-
----
-
-## Resolved
-_Nothing resolved yet._
+const objectOptions = [
+  { id: 1, label: 'Option A' },
+  { id: 2, label: 'Option B' },
+  { id: 3, label: 'Option C' },
+]
+</script>
