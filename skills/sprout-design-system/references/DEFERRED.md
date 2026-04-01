@@ -1,109 +1,126 @@
-<template>
-  <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+# Aurora Initiative · Reference Card Build — Deferred & Flagged Components
 
-    <!-- String array options -->
-    <spr-select
-      id="basic"
-      v-model="selected1"
-      :options="stringOptions"
-      label="String Options"
-      placeholder="Select one..."
-    />
+Last updated: 2026-04-01
+Branch: `refactor/2-improve-design-system-inaccuracies`
 
-    <!-- Object options with textField/valueField -->
-    <spr-select
-      id="object"
-      v-model="selected2"
-      :options="objectOptions"
-      textField="label"
-      valueField="id"
-      label="Object Options"
-      placeholder="Select one..."
-    />
+This file is the source of truth for all deferred harness runs and flagged items discovered during reference card builds. Update this file whenever a new flag is added.
 
-    <!-- Searchable -->
-    <spr-select
-      id="searchable"
-      v-model="selected3"
-      :options="stringOptions"
-      label="Searchable"
-      placeholder="Search and select..."
-      :searchable="true"
-    />
+## Legend
 
-    <!-- Clearable -->
-    <spr-select
-      id="clearable"
-      v-model="selected4"
-      :options="stringOptions"
-      label="Clearable"
-      placeholder="Select then clear..."
-      :clearable="true"
-    />
+- 🔴 Blocked — cannot write card without harness run
+- 🟡 Flagged — card written from MCP data but browser-unverified; flag if used in prototype generation
+- 🟢 Queued — no props in MCP; needs standalone harness run before card can be written
 
-    <!-- Error state -->
-    <spr-select
-      id="error"
-      v-model="selected5"
-      :options="stringOptions"
-      label="Error State"
-      :error="true"
-      placeholder="Error..."
-    />
+---
 
-    <!-- Disabled -->
-    <spr-select
-      id="disabled"
-      v-model="selected6"
-      :options="stringOptions"
-      label="Disabled"
-      :disabled="true"
-      placeholder="Disabled..."
-    />
+## Deferred Components
 
-    <!-- Helper text -->
-    <spr-select
-      id="helper"
-      v-model="selected7"
-      :options="stringOptions"
-      label="With Helper"
-      :displayHelper="true"
-      helperText="Choose wisely"
-      placeholder="Has helper..."
-    />
+### `spr-input-dropdown`
+- Status: 🟢 Queued
+- Parent: `spr-input` (subcomponent)
+- Issue: No documented props in MCP
+- Action: Harness run needed before card can be written
 
-    <!-- groupItemsBy -->
-    <spr-select
-      id="grouped"
-      v-model="selected8"
-      :options="stringOptions"
-      label="Grouped A-Z"
-      groupItemsBy="A-Z"
-      placeholder="Grouped..."
-    />
+### `spr-input-email`
+- Status: 🟢 Queued
+- Parent: `spr-input` (subcomponent)
+- Issue: No documented props in MCP
+- Action: Harness run needed before card can be written
 
-    <div>Selected values: {{ { selected1, selected2, selected3, selected4 } }}</div>
+### `spr-input-password`
+- Status: 🟢 Queued
+- Parent: `spr-input` (subcomponent)
+- Issue: No documented props in MCP
+- Action: Harness run needed before card can be written
 
-  </div>
-</template>
+### `spr-input-search`
+- Status: 🟢 Queued
+- Parent: `spr-input` (subcomponent)
+- Issue: No documented props in MCP
+- Action: Harness run needed before card can be written
 
-<script setup lang="ts">
-import { ref } from 'vue'
+### `spr-input-url`
+- Status: 🟢 Queued
+- Parent: `spr-input` (subcomponent)
+- Issue: No documented props in MCP
+- Action: Harness run needed before card can be written
 
-const selected1 = ref('')
-const selected2 = ref('')
-const selected3 = ref('')
-const selected4 = ref('')
-const selected5 = ref('')
-const selected6 = ref('')
-const selected7 = ref('')
-const selected8 = ref('')
+### `spr-input-username`
+- Status: 🟢 Queued
+- Parent: `spr-input` (subcomponent)
+- Issue: No documented props in MCP
+- Action: Harness run needed before card can be written
 
-const stringOptions = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry']
+---
 
-const objectOptions = [
-  { id: 1, label: 'Option A' },
-  { id: 2, label: 'Option B' },
-  { id: 3, label: 'Option C' },
-]
-</script>
+## Flagged — MCP Data Only, Browser-Unverified
+
+### `spr-input-contact-number`
+- Status: 🟡 Flagged
+- Parent: `spr-input` (subcomponent)
+- Issue: Full props available in MCP but never run in test harness
+- Action: Verify in harness if used in prototype generation
+
+### `spr-input-currency`
+- Status: 🟡 Flagged
+- Parent: `spr-input` (subcomponent)
+- Issue: Full props available in MCP but never run in test harness
+- Action: Verify in harness if used in prototype generation
+
+### `spr-select-multiple`
+- Status: 🟡 Flagged
+- Parent: `spr-select` (subcomponent)
+- Issue: Full props available in MCP but never run in test harness
+- Action: Verify in harness if used in prototype generation
+
+### `spr-select-ladderized`
+- Status: 🟡 Flagged
+- Parent: `spr-select` (subcomponent)
+- Issue: Full props available in MCP but never run in test harness
+- Action: Verify in harness if used in prototype generation
+
+---
+
+## Resolved
+
+### `spr-button-dropdown`
+- Status: ✅ Resolved — card written
+- Parent: `spr-button` (subcomponent)
+- Verified: 2026-04-01 · Design System Next v2.27.9
+- Notes: Subcomponent only — do not use standalone. Do not use `v-model` directly; use `:model-value` + `@update:model-value` with manual array accumulation. `menuList` items must be `{ label, value }` shape.
+
+### `spr-table`
+- Status: ✅ Resolved — card written
+- Notes: Wrapper div with explicit height required.
+
+### `spr-accordion`
+- Status: ✅ Resolved — card written
+- Notes: Dynamic slot `#[item.collapseId]`; no height wrapper needed.
+
+### `spr-button`
+- Status: ✅ Resolved — card written
+- Notes: `state` prop is internal-use only.
+
+### `spr-input`
+- Status: ✅ Resolved — card written
+- Notes: `supportingLabel` renders inline next to label, not below.
+
+### `spr-badge`
+- Status: ✅ Resolved — card written
+- Notes: `tiny` size renders as dot with no text.
+
+### `spr-modal`
+- Status: ✅ Resolved — card written
+- Notes: `v-model` controls open/close.
+
+### `spr-select`
+- Status: ✅ Resolved — card written
+- Notes: Object options return full object, not just `valueField`. `popper-state` console warning is internal — ignore.
+
+### `spr-tabs`
+- Status: ✅ Resolved — card written
+- Notes: `list` requires `{ label, value }` shape only. `activeTab` matches by label text, not value/index. Always derive `activeTab` from `tabs[0].label`. No slots — content managed externally via `tabIndex` emit.
+
+### `spr-tooltip`
+- Status: ✅ Resolved — card written
+- Notes: `text` prop for plain text; `#popper-content` slot for rich content.
