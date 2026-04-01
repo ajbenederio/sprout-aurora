@@ -1,25 +1,36 @@
 <template>
-  <div style="padding: 24px; display: flex; flex-direction: column; gap: 32px;">
+  <div style="padding: 48px; display: flex; gap: 48px; flex-wrap: wrap;">
 
-    <!-- Test: activeTab as index string -->
-    <div>
-      <p>activeTab="1" (index)</p>
-      <spr-tabs :list="tabs" activeTab="1" />
-    </div>
+    <!-- Text prop -->
+    <spr-tooltip text="Tooltip via text prop" placement="top">
+      <spr-button>Hover me (text prop)</spr-button>
+    </spr-tooltip>
 
-    <!-- Test: activeTab as label text -->
-    <div>
-      <p>activeTab="Tab Two" (label text)</p>
-      <spr-tabs :list="tabs" activeTab="Tab Two" />
-    </div>
+    <!-- popper-content slot -->
+    <spr-tooltip placement="top">
+      <spr-button>Hover me (slot)</spr-button>
+      <template #popper-content>
+        <strong>Custom</strong> tooltip content
+      </template>
+    </spr-tooltip>
+
+    <!-- Placement variants -->
+    <spr-tooltip text="Bottom tooltip" placement="bottom">
+      <spr-button>Bottom</spr-button>
+    </spr-tooltip>
+
+    <spr-tooltip text="Right tooltip" placement="right">
+      <spr-button>Right</spr-button>
+    </spr-tooltip>
+
+    <spr-tooltip text="Left tooltip" placement="left">
+      <spr-button>Left</spr-button>
+    </spr-tooltip>
+
+    <!-- Click trigger -->
+    <spr-tooltip text="Click tooltip" showTriggers="click" hideTriggers="click">
+      <spr-button>Click me</spr-button>
+    </spr-tooltip>
 
   </div>
 </template>
-
-<script setup lang="ts">
-const tabs = [
-  { label: 'Tab One', value: 'tab1' },
-  { label: 'Tab Two', value: 'tab2' },
-  { label: 'Tab Three', value: 'tab3' },
-]
-</script>
