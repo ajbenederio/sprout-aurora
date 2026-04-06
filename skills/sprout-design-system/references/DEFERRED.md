@@ -1,6 +1,6 @@
 # Aurora Initiative · Reference Card Build — Deferred & Flagged Components
 
-Last updated: 2026-04-01
+Last updated: 2026-04-06
 Branch: `refactor/2-improve-design-system-inaccuracies`
 
 This file is the source of truth for all deferred harness runs and flagged items discovered during reference card builds. Update this file whenever a new flag is added.
@@ -51,6 +51,12 @@ This file is the source of truth for all deferred harness runs and flagged items
 - Issue: No documented props in MCP
 - Action: Harness run needed before card can be written
 
+### `spr-lozenge` — `removable` prop / `@remove` emit
+- Status: 🔴 Blocked
+- Parent: `spr-lozenge` (top-level)
+- Issue: `removable=true` did not show an X button in harness. MCP lists emit as `onRemove` but correct Vue listener may be `@remove`. Behavior unconfirmed.
+- Action: Targeted harness run needed — test `@remove` listener syntax and confirm X button renders
+
 ---
 
 ## Flagged — MCP Data Only, Browser-Unverified
@@ -79,9 +85,36 @@ This file is the source of truth for all deferred harness runs and flagged items
 - Issue: Full props available in MCP but never run in test harness
 - Action: Verify in harness if used in prototype generation
 
+### `spr-lozenge` — `icon` / `postfixIcon` props
+- Status: 🟡 Flagged
+- Parent: `spr-lozenge` (top-level)
+- Issue: Icon name format unknown — passing `"star"` renders nothing. Valid icon name format for this design system is unconfirmed.
+- Action: Confirm icon name format before using these props in prototype generation
+
+### `spr-lozenge` — `#icon` / `#postfixIcon` slots
+- Status: 🟡 Flagged
+- Parent: `spr-lozenge` (top-level)
+- Issue: MCP-only — slots exist per JSON but were not tested in harness
+- Action: Verify in harness if used in prototype generation
+
 ---
 
 ## Resolved
+
+### `spr-lozenge`
+- Status: ✅ Resolved — card written (partial flags remain, see Flagged above)
+- Verified: 2026-04-06 · Design System Next v2.27.9
+- Notes: All tones and `fill` verified. `loading=true` renders full-width skeleton bar. `dropdown=true` adds chevron only — not functional. `visible=false` hides component. `maxWidth` truncates with ellipsis. `#avatar` slot verified. `removable`, `icon`/`postfixIcon` props, and `#icon`/`#postfixIcon` slots remain flagged.
+
+### `spr-empty-state`
+- Status: ✅ Resolved — card written
+- Verified: 2026-04-06 · Design System Next v2.27.9
+- Notes: No required props. `#default` slot renders above image. `#button` slot renders regardless of `hasButton` value — `hasButton` purpose unclear, do not rely on it to gate slot visibility.
+
+### `spr-table-pagination`
+- Status: ✅ Resolved — card written
+- Verified: 2026-04-06 · Design System Next v2.27.9
+- Notes: Subcomponent of `spr-table` — fetch via `get_component("table")`. Use numbers (not strings) for `dropdownSelection` value fields. `selectedRowCount` must exactly match a value in `dropdownSelection` or initial selection is wrong. `aria-hidden` popper warnings are non-blocking.
 
 ### `spr-button-dropdown`
 - Status: ✅ Resolved — card written
