@@ -1,83 +1,85 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-// Instance 1 — defaults, minimal required props
-const rowCount1 = ref(10)
-const page1 = ref(1)
-
-// Instance 2 — editableCurrentPage, no border
-const rowCount2 = ref(20)
-const page2 = ref(3)
-
-// Instance 3 — showNumberOfRowsDropdown hidden, actions slot
-const rowCount3 = ref(10)
-const page3 = ref(1)
-
-const dropdownOptions = [
-  { text: '10', value: '10' },
-  { text: '20', value: '20' },
-  { text: '50', value: '50' },
-  { text: '100', value: '100' },
-]
-
-function onPrevious(instance: number) {
-  console.log(`[instance ${instance}] previous clicked`)
-}
-function onNext(instance: number) {
-  console.log(`[instance ${instance}] next clicked`)
-}
+// No imports needed
 </script>
 
 <template>
-  <div style="padding: 24px; display: flex; flex-direction: column; gap: 32px;">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 48px;">
 
-    <!-- Instance 1: All required props, defaults for optionals -->
+    <!-- Instance 1: All defaults (no props set) -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">1. Default — bordered, no editable page, dropdown visible</p>
-      <spr-table-pagination
-        v-model:selectedRowCount="rowCount1"
-        v-model:currentPage="page1"
-        :totalItems="87"
-        :dropdownSelection="dropdownOptions"
-        @previous="onPrevious(1)"
-        @next="onNext(1)"
-      />
-      <p style="margin-top: 8px; font-size: 12px;">selectedRowCount: {{ rowCount1 }} | currentPage: {{ page1 }}</p>
+      <p style="margin-bottom: 8px; font-weight: bold;">1. All defaults — no props set</p>
+      <spr-empty-state />
     </div>
 
-    <!-- Instance 2: editableCurrentPage=true, bordered=false -->
+    <!-- Instance 2: size="large", different image -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">2. editableCurrentPage=true, bordered=false</p>
-      <spr-table-pagination
-        v-model:selectedRowCount="rowCount2"
-        v-model:currentPage="page2"
-        :totalItems="200"
-        :dropdownSelection="dropdownOptions"
-        :bordered="false"
-        :editableCurrentPage="true"
-        @previous="onPrevious(2)"
-        @next="onNext(2)"
+      <p style="margin-bottom: 8px; font-weight: bold;">2. size="large", image="dashboard"</p>
+      <spr-empty-state
+        size="large"
+        image="dashboard"
+        description="No dashboard data"
+        subDescription="Connect an integration to get started."
       />
-      <p style="margin-top: 8px; font-size: 12px;">selectedRowCount: {{ rowCount2 }} | currentPage: {{ page2 }}</p>
     </div>
 
-    <!-- Instance 3: showNumberOfRowsDropdown=false, actions slot -->
+    <!-- Instance 3: hasButton=false, #button slot — does slot render without hasButton=true? -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">3. showNumberOfRowsDropdown=false, #actions slot</p>
-      <spr-table-pagination
-        v-model:selectedRowCount="rowCount3"
-        v-model:currentPage="page3"
-        :totalItems="50"
-        :dropdownSelection="dropdownOptions"
-        :showNumberOfRowsDropdown="false"
-        @previous="onPrevious(3)"
-        @next="onNext(3)"
+      <p style="margin-bottom: 8px; font-weight: bold;">3. #button slot, hasButton=false (default)</p>
+      <spr-empty-state
+        description="Slot test — hasButton=false"
+        subDescription="Does the button slot appear below?"
       >
-        <template #actions>
-          <button style="padding: 4px 12px; font-size: 12px;">Export</button>
+        <template #button>
+          <spr-button label="Add Item" />
         </template>
-      </spr-table-pagination>
-      <p style="margin-top: 8px; font-size: 12px;">selectedRowCount: {{ rowCount3 }} | currentPage: {{ page3 }}</p>
+      </spr-empty-state>
+    </div>
+
+    <!-- Instance 4: hasButton=true, #button slot -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">4. #button slot, hasButton=true</p>
+      <spr-empty-state
+        description="Slot test — hasButton=true"
+        subDescription="Does the button slot appear below?"
+        :hasButton="true"
+      >
+        <template #button>
+          <spr-button label="Add Item" />
+        </template>
+      </spr-empty-state>
+    </div>
+
+    <!-- Instance 5: #default slot -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">5. #default slot</p>
+      <spr-empty-state
+        description="Default slot test"
+        subDescription="Custom content below?"
+      >
+        <template #default>
+          <p style="color: red; font-size: 12px;">I am default slot content</p>
+        </template>
+      </spr-empty-state>
+    </div>
+
+    <!-- Instance 6: emptyStateCustomClasses -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">6. emptyStateCustomClasses passthrough</p>
+      <spr-empty-state
+        description="Custom class test"
+        emptyStateCustomClasses="my-custom-class"
+        image="bug"
+      />
+    </div>
+
+    <!-- Instance 7: Sample of other image values -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">7. image="work-in-progress"</p>
+      <spr-empty-state
+        image="work-in-progress"
+        description="Work in progress"
+        subDescription="Check back soon."
+      />
     </div>
 
   </div>
