@@ -1,144 +1,171 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { RestDayType, DisabledDatesType, MinMaxYearType } from 'design-system-next'
 
-const text1 = ref('')
-const text2 = ref('Pre-filled value')
-const text3 = ref('')
-const text4 = ref('')
-const text5 = ref('')
+const date1 = ref('')
+const date2 = ref('')
+const date3 = ref('')
+const date4 = ref('')
+const date5 = ref('')
+const date6 = ref('')
+const date7 = ref('')
+
+const minMax: MinMaxYearType = { min: 2000, max: 2030 }
+
+const disabledWeekends: Partial<DisabledDatesType> = { weekends: true }
+
+const restDays: RestDayType[] = ['sa', 'su']
+
+function onGetInputValue(val: string | null) {
+  console.log('getInputValue:', val)
+}
+function onGetDateFormats(val: Record<string, unknown>) {
+  console.log('getDateFormats:', val)
+}
+function onGetMonthList(val: Array<object>) {
+  console.log('getMonthList:', val)
+}
+function onGetYearList(val: Array<number>) {
+  console.log('getYearList:', val)
+}
 </script>
 
 <template>
-  <div style="padding: 24px; display: flex; flex-direction: column; gap: 32px; max-width: 600px;">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 40px; max-width: 600px;">
 
-    <!-- 1. Basic usage — label, placeholder, v-model -->
+    <!-- 1. Basic — required props only -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">1. Basic — label + placeholder + v-model</p>
-      <spr-textarea
-        id="textarea-basic"
-        v-model="text1"
-        label="Basic Textarea"
-        placeholder="Type something..."
+      <p style="margin-bottom: 8px; font-weight: bold;">1. Basic — id + v-model only</p>
+      <spr-date-picker
+        id="dp-basic"
+        v-model="date1"
+        label="Pick a date"
+        @get-input-value="onGetInputValue"
+        @get-date-formats="onGetDateFormats"
+        @get-month-list="onGetMonthList"
+        @get-year-list="onGetYearList"
       />
-      <p style="margin-top: 4px; font-size: 12px;">Bound value: "{{ text1 }}"</p>
+      <p style="margin-top: 4px; font-size: 12px;">v-model value: "{{ date1 }}"</p>
     </div>
 
-    <!-- 2. Supporting label -->
+    <!-- 2. Error state -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">2. Supporting label</p>
-      <spr-textarea
-        id="textarea-supporting"
-        v-model="text2"
-        label="With Supporting Label"
-        supporting-label="Optional"
-      />
-    </div>
-
-    <!-- 3. Error state -->
-    <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">3. Error state</p>
-      <spr-textarea
-        id="textarea-error"
-        v-model="text3"
-        label="Error Textarea"
+      <p style="margin-bottom: 8px; font-weight: bold;">2. Error state</p>
+      <spr-date-picker
+        id="dp-error"
+        v-model="date2"
+        label="Error Date"
         :error="true"
-        placeholder="This has an error"
       />
     </div>
 
-    <!-- 4. Disabled + readonly -->
+    <!-- 3. Disabled -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">4. Disabled</p>
-      <spr-textarea
-        id="textarea-disabled"
-        v-model="text2"
-        label="Disabled"
+      <p style="margin-bottom: 8px; font-weight: bold;">3. Disabled</p>
+      <spr-date-picker
+        id="dp-disabled"
+        v-model="date3"
+        label="Disabled Date"
         :disabled="true"
       />
-      <p style="margin-top: 16px; font-weight: bold;">4b. Readonly</p>
-      <spr-textarea
-        id="textarea-readonly"
-        v-model="text2"
-        label="Readonly"
+    </div>
+
+    <!-- 4. Readonly -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">4. Readonly</p>
+      <spr-date-picker
+        id="dp-readonly"
+        v-model="date3"
+        label="Readonly Date"
         :readonly="true"
       />
     </div>
 
-    <!-- 5. rows prop -->
+    <!-- 5. restDays — weekends blocked -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">5. rows=8 (default is 4)</p>
-      <spr-textarea
-        id="textarea-rows"
-        v-model="text4"
-        label="Tall Textarea"
-        :rows="8"
-        placeholder="Should be taller than default"
+      <p style="margin-bottom: 8px; font-weight: bold;">5. restDays — sa + su blocked</p>
+      <spr-date-picker
+        id="dp-rest"
+        v-model="date4"
+        label="No Weekends"
+        :rest-days="restDays"
       />
     </div>
 
-    <!-- 6. displayHelper + helperText + helperIcon -->
+    <!-- 6. disabledDates — weekends disabled -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">6. displayHelper + helperText + helperIcon</p>
-      <spr-textarea
-        id="textarea-helper"
-        v-model="text5"
+      <p style="margin-bottom: 8px; font-weight: bold;">6. disabledDates — weekends: true</p>
+      <spr-date-picker
+        id="dp-disabled-dates"
+        v-model="date5"
+        label="Disabled Weekends"
+        :disabled-dates="disabledWeekends"
+      />
+    </div>
+
+    <!-- 7. minMaxYear constraint -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">7. minMaxYear — 2000 to 2030</p>
+      <spr-date-picker
+        id="dp-minmax"
+        v-model="date6"
+        label="Year Range 2000–2030"
+        :min-max-year="minMax"
+      />
+    </div>
+
+    <!-- 8. Custom format -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">8. format — YYYY/MM/DD</p>
+      <spr-date-picker
+        id="dp-format"
+        v-model="date7"
+        label="Custom Format"
+        format="YYYY/MM/DD"
+      />
+      <p style="margin-top: 4px; font-size: 12px;">v-model value: "{{ date7 }}"</p>
+    </div>
+
+    <!-- 9. displayHelper + helperText -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">9. displayHelper + helperText</p>
+      <spr-date-picker
+        id="dp-helper"
+        v-model="date1"
         label="With Helper"
         :display-helper="true"
-        helper-text="This is the helper text"
-        helper-icon="info"
+        helper-text="Select a date from the calendar"
       />
     </div>
 
-    <!-- 7. helperMessage slot -->
+    <!-- 10. helperMessage slot -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">7. helperMessage slot</p>
-      <spr-textarea
-        id="textarea-helper-slot"
-        v-model="text5"
-        label="Helper via Slot"
-        :display-helper="true"
+      <p style="margin-bottom: 8px; font-weight: bold;">10. helperMessage slot</p>
+      <spr-date-picker
+        id="dp-helper-slot"
+        v-model="date1"
+        label="Slot Helper"
       >
         <template #helperMessage>
-          <span style="color: purple;">Slot-rendered helper message</span>
+          <span style="color: purple;">Slot-rendered helper</span>
         </template>
-      </spr-textarea>
+      </spr-date-picker>
     </div>
 
-    <!-- 8. hasCounter without maxLength -->
+    <!-- 11. default scoped slot — custom trigger -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">8. hasCounter — no maxLength</p>
-      <spr-textarea
-        id="textarea-counter-no-max"
-        v-model="text5"
-        label="Counter Without maxLength"
-        :has-counter="true"
-      />
-    </div>
-
-    <!-- 9. hasCounter with maxLength -->
-    <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">9. hasCounter + maxLength=100</p>
-      <spr-textarea
-        id="textarea-counter-max"
-        v-model="text5"
-        label="Counter With maxLength"
-        :has-counter="true"
-        :max-length="100"
-      />
-    </div>
-
-    <!-- 10. counter slot -->
-    <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">10. counter slot</p>
-      <spr-textarea
-        id="textarea-counter-slot"
-        v-model="text5"
-        label="Counter via Slot"
+      <p style="margin-bottom: 8px; font-weight: bold;">11. default slot — custom trigger via handle-click</p>
+      <spr-date-picker
+        id="dp-slot-trigger"
+        v-model="date1"
+        label="Custom Trigger"
       >
-        <template #counter>
-          <span style="color: green;">Custom counter: {{ text5.length }}/200</span>
+        <template #default="{ 'handle-click': handleClick }">
+          <button @click="handleClick" style="padding: 8px 16px; background: teal; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Open Calendar
+          </button>
         </template>
-      </spr-textarea>
+      </spr-date-picker>
     </div>
 
   </div>
