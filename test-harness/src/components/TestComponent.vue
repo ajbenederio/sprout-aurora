@@ -1,101 +1,144 @@
 <script setup lang="ts">
-function onRemove(e: MouseEvent) {
-  console.log('[onRemove] clicked', e)
-}
+import { ref } from 'vue'
+
+const text1 = ref('')
+const text2 = ref('Pre-filled value')
+const text3 = ref('')
+const text4 = ref('')
+const text5 = ref('')
 </script>
 
 <template>
-  <div style="padding: 24px; display: flex; flex-direction: column; gap: 32px;">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 32px; max-width: 600px;">
 
-    <!-- Row 1: All 7 tones, default fill=false -->
+    <!-- 1. Basic usage — label, placeholder, v-model -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">1. All tones — fill=false (default)</p>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <spr-lozenge label="Plain" tone="plain" />
-        <spr-lozenge label="Pending" tone="pending" />
-        <spr-lozenge label="Information" tone="information" />
-        <spr-lozenge label="Success" tone="success" />
-        <spr-lozenge label="Danger" tone="danger" />
-        <spr-lozenge label="Neutral" tone="neutral" />
-        <spr-lozenge label="Caution" tone="caution" />
-      </div>
+      <p style="margin-bottom: 8px; font-weight: bold;">1. Basic — label + placeholder + v-model</p>
+      <spr-textarea
+        id="textarea-basic"
+        v-model="text1"
+        label="Basic Textarea"
+        placeholder="Type something..."
+      />
+      <p style="margin-top: 4px; font-size: 12px;">Bound value: "{{ text1 }}"</p>
     </div>
 
-    <!-- Row 2: All 7 tones, fill=true -->
+    <!-- 2. Supporting label -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">2. All tones — fill=true</p>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <spr-lozenge label="Plain" tone="plain" :fill="true" />
-        <spr-lozenge label="Pending" tone="pending" :fill="true" />
-        <spr-lozenge label="Information" tone="information" :fill="true" />
-        <spr-lozenge label="Success" tone="success" :fill="true" />
-        <spr-lozenge label="Danger" tone="danger" :fill="true" />
-        <spr-lozenge label="Neutral" tone="neutral" :fill="true" />
-        <spr-lozenge label="Caution" tone="caution" :fill="true" />
-      </div>
+      <p style="margin-bottom: 8px; font-weight: bold;">2. Supporting label</p>
+      <spr-textarea
+        id="textarea-supporting"
+        v-model="text2"
+        label="With Supporting Label"
+        supporting-label="Optional"
+      />
     </div>
 
-    <!-- Row 3: removable -->
+    <!-- 3. Error state -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">3. removable=true — check console on click</p>
-      <div style="display: flex; gap: 8px;">
-        <spr-lozenge label="Removable" tone="information" :removable="true" @onRemove="onRemove" />
-        <spr-lozenge label="Removable filled" tone="success" :removable="true" :fill="true" @onRemove="onRemove" />
-      </div>
+      <p style="margin-bottom: 8px; font-weight: bold;">3. Error state</p>
+      <spr-textarea
+        id="textarea-error"
+        v-model="text3"
+        label="Error Textarea"
+        :error="true"
+        placeholder="This has an error"
+      />
     </div>
 
-    <!-- Row 4: url -->
+    <!-- 4. Disabled + readonly -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">4. url — renders as link?</p>
-      <spr-lozenge label="Visit Link" tone="information" url="https://example.com" />
+      <p style="margin-bottom: 8px; font-weight: bold;">4. Disabled</p>
+      <spr-textarea
+        id="textarea-disabled"
+        v-model="text2"
+        label="Disabled"
+        :disabled="true"
+      />
+      <p style="margin-top: 16px; font-weight: bold;">4b. Readonly</p>
+      <spr-textarea
+        id="textarea-readonly"
+        v-model="text2"
+        label="Readonly"
+        :readonly="true"
+      />
     </div>
 
-    <!-- Row 5: visible=false -->
+    <!-- 5. rows prop -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">5. visible=false — should be hidden</p>
-      <spr-lozenge label="Hidden lozenge" tone="danger" :visible="false" />
-      <span style="font-size: 12px; color: gray;">(nothing should appear above)</span>
+      <p style="margin-bottom: 8px; font-weight: bold;">5. rows=8 (default is 4)</p>
+      <spr-textarea
+        id="textarea-rows"
+        v-model="text4"
+        label="Tall Textarea"
+        :rows="8"
+        placeholder="Should be taller than default"
+      />
     </div>
 
-    <!-- Row 6: loading=true -->
+    <!-- 6. displayHelper + helperText + helperIcon -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">6. loading=true</p>
-      <spr-lozenge label="Loading" tone="neutral" :loading="true" />
+      <p style="margin-bottom: 8px; font-weight: bold;">6. displayHelper + helperText + helperIcon</p>
+      <spr-textarea
+        id="textarea-helper"
+        v-model="text5"
+        label="With Helper"
+        :display-helper="true"
+        helper-text="This is the helper text"
+        helper-icon="info"
+      />
     </div>
 
-    <!-- Row 7: interactive, dropdown -->
+    <!-- 7. helperMessage slot -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">7. interactive=true, dropdown=true</p>
-      <div style="display: flex; gap: 8px;">
-        <spr-lozenge label="Interactive" tone="plain" :interactive="true" />
-        <spr-lozenge label="Dropdown" tone="plain" :dropdown="true" />
-        <spr-lozenge label="Both" tone="plain" :interactive="true" :dropdown="true" />
-      </div>
-    </div>
-
-    <!-- Row 8: icon prop, postfixIcon prop -->
-    <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">8. icon + postfixIcon props (format unknown)</p>
-      <div style="display: flex; gap: 8px;">
-        <spr-lozenge label="With icon" tone="information" icon="star" />
-        <spr-lozenge label="With postfix" tone="information" postfixIcon="star" />
-      </div>
-    </div>
-
-    <!-- Row 9: #avatar slot -->
-    <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">9. #avatar slot</p>
-      <spr-lozenge label="Jane Doe" tone="plain">
-        <template #avatar>
-          <div style="width: 16px; height: 16px; border-radius: 50%; background: #999; display: inline-block;" />
+      <p style="margin-bottom: 8px; font-weight: bold;">7. helperMessage slot</p>
+      <spr-textarea
+        id="textarea-helper-slot"
+        v-model="text5"
+        label="Helper via Slot"
+        :display-helper="true"
+      >
+        <template #helperMessage>
+          <span style="color: purple;">Slot-rendered helper message</span>
         </template>
-      </spr-lozenge>
+      </spr-textarea>
     </div>
 
-    <!-- Row 10: maxWidth -->
+    <!-- 8. hasCounter without maxLength -->
     <div>
-      <p style="margin-bottom: 8px; font-weight: bold;">10. maxWidth="100px" — truncation?</p>
-      <spr-lozenge label="This is a very long label that should truncate" tone="neutral" maxWidth="100px" />
+      <p style="margin-bottom: 8px; font-weight: bold;">8. hasCounter — no maxLength</p>
+      <spr-textarea
+        id="textarea-counter-no-max"
+        v-model="text5"
+        label="Counter Without maxLength"
+        :has-counter="true"
+      />
+    </div>
+
+    <!-- 9. hasCounter with maxLength -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">9. hasCounter + maxLength=100</p>
+      <spr-textarea
+        id="textarea-counter-max"
+        v-model="text5"
+        label="Counter With maxLength"
+        :has-counter="true"
+        :max-length="100"
+      />
+    </div>
+
+    <!-- 10. counter slot -->
+    <div>
+      <p style="margin-bottom: 8px; font-weight: bold;">10. counter slot</p>
+      <spr-textarea
+        id="textarea-counter-slot"
+        v-model="text5"
+        label="Counter via Slot"
+      >
+        <template #counter>
+          <span style="color: green;">Custom counter: {{ text5.length }}/200</span>
+        </template>
+      </spr-textarea>
     </div>
 
   </div>
