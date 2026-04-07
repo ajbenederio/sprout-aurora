@@ -24,7 +24,7 @@ A versatile button component for triggering actions, with customizable size, ton
 
 ```vue
 <template>
-  <spr-button tone="success" variant="secondary" size="large" hasIcon>
+  <spr-button tone="success" variant="secondary" size="large" has-icon>
     <Icon icon="ph:trash" />
     <span>Button</span>
   </spr-button>
@@ -45,8 +45,8 @@ import { Icon } from '@iconify/vue';
 | type | `'button' \| 'submit' \| 'reset'` | `'button'` | Specifies the native HTML button type attribute. |
 | state | `'base' \| 'hover' \| 'pressed' \| 'focus'` | `'base'` | Defines the visual state of the button. Mostly used internally. |
 | disabled | `boolean` | `false` | When true, prevents user interaction and applies a visual disabled state. |
-| hasIcon | `boolean` | `false` | Indicates that the button contains an icon, which affects spacing and layout. |
-| fullwidth | `boolean` | `false` | When true, the button expands to fill the width of its container. |
+| has-icon | `boolean` | `false` | Indicates that the button contains an icon, which affects spacing and layout. |
+| fullwidth | `boolean` | `false` | When true, the button expands to fill the width of its container. Browser-confirmed: use `fullwidth` (no hyphen, all lowercase). `full-width` and `:fullWidth="true"` do not apply the style. |
 
 ### Events
 
@@ -111,15 +111,15 @@ const mainButtonClicked = () => { alert('Main button was clicked.'); };
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | modelValue | `MenuListType[] \| string[] \| Record<string, unknown>[]` | `[]` | Currently selected menu item(s). Used with `v-model` for two-way binding. |
-| menuList | `MenuListType[] \| string[] \| Record<string, unknown>[]` | `[]` | Array of options to display in the dropdown. Each item can include `text`, `value`, `icon`, `iconColor`, `textColor`, `onClickFn`, `disabled`. |
-| dropdownId | `string` | Required | Required unique identifier for the dropdown component. |
+| menu-list | `MenuListType[] \| string[] \| Record<string, unknown>[]` | `[]` | Array of options to display in the dropdown. Each item can include `text`, `value`, `icon`, `iconColor`, `textColor`, `onClickFn`, `disabled`. |
+| dropdown-id | `string` | Required | Required unique identifier for the dropdown component. |
 | tone | `'neutral' \| 'success'` | `'neutral'` | Controls the color theme. Note: `danger` tone is not available for button-dropdown. |
 | variant | `'primary' \| 'secondary'` | `'primary'` | Controls the visual style. Note: `tertiary` variant is not available. |
 | size | `'small' \| 'medium' \| 'large'` | `'medium'` | Controls the size of the button dropdown. |
 | disabled | `boolean` | `false` | When true, both the main button and dropdown trigger become non-interactive. |
 | width | `string` | `'fit-content'` | Sets the width of the entire button dropdown component. |
-| popperWidth | `string` | `'fit-content'` | Sets the width of the dropdown menu container. |
-| popperInnerWidth | `string` | `'unset'` | Sets the width of the content inside the dropdown menu. |
+| popper-width | `string` | `'fit-content'` | Sets the width of the dropdown menu container. |
+| popper-inner-width | `string` | `'unset'` | Sets the width of the content inside the dropdown menu. |
 | placement | `'auto' \| 'auto-start' \| 'auto-end' \| 'top' \| 'top-start' \| 'top-end' \| 'right' \| 'right-start' \| 'right-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end'` | `'bottom'` | Controls the position of the dropdown menu relative to the button. |
 
 ### Events
@@ -407,11 +407,11 @@ const selectedValue = ref('');
 | interval | `number` | `30` | Time interval in minutes between options. |
 | label | `string` | `''` | Label text displayed above the input field. |
 | placeholder | `string` | Format-dependent (`'HH : MM'` or `'HH : MM AM/PM'`) | Placeholder text for the input field. |
-| disableTyping | `boolean` | `false` | When true, prevents manual text entry in the input field. |
+| disable-typing | `boolean` | `false` | When true, prevents manual text entry in the input field. |
 | error | `boolean` | `false` | When true, displays the field in an error state. |
-| helperText | `string` | `''` | Helper text displayed below the input field. |
+| helper-text | `string` | `''` | Helper text displayed below the input field. |
 | disabled | `boolean` | `false` | When true, disables the time picker. |
-| fullWidth | `boolean` | `false` | When true, the time picker expands to the full width of its container. |
+| full-width | `boolean` | `false` | When true, the time picker expands to the full width of its container. |
 | id | `string` | `'time-picker'` | HTML ID attribute for the input element. |
 
 ### Events
@@ -430,7 +430,7 @@ A comprehensive weekly calendar component for employee scheduling, with support 
 
 ```vue
 <template>
-  <SprCalendar
+  <spr-calendar
     v-model:search="searchEmployee"
     v-model:selected-cell="selectedCell"
     v-model:selected-company="selectedCompany"
@@ -480,12 +480,12 @@ const branchOptions = [{ text: 'All Branches', value: 'all' }];
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | employees | `Array` | `[]` | Array of employee data to display, including schedule information. |
-| initialDate | `Date` | Current date | The initial date to display. The calendar shows the week containing this date. |
+| initial-date | `Date` | Current date | The initial date to display. The calendar shows the week containing this date. |
 | loading | `boolean` | `false` | Controls whether to show a loading indicator during data fetching. |
-| companyOptions | `Array<{text: string, value: string}>` | `[]` | Options for the company filter dropdown. |
-| departmentOptions | `Array<{text: string, value: string}>` | `[]` | Options for the department filter dropdown. |
-| branchOptions | `Array<{text: string, value: string}>` | `[]` | Options for the branch filter dropdown. |
-| emptyState | `Object` | Default empty state | Configuration for the empty state when there are no employees. |
+| company-options | `Array<{text: string, value: string}>` | `[]` | Options for the company filter dropdown. |
+| department-options | `Array<{text: string, value: string}>` | `[]` | Options for the department filter dropdown. |
+| branch-options | `Array<{text: string, value: string}>` | `[]` | Options for the branch filter dropdown. |
+| empty-state | `Object` | Default empty state | Configuration for the empty state when there are no employees. |
 
 ### Events
 
@@ -579,7 +579,7 @@ A versatile filtering solution with multi-select, advanced filter menus, infinit
 
 ```vue
 <template>
-  <spr-filter v-model="selectedOptions" v-model:search="searchValue" :options="options" label="Search" hasAvatar />
+  <spr-filter v-model="selectedOptions" v-model:search="searchValue" :options="options" label="Search" has-avatar />
 </template>
 
 <script setup>
@@ -653,7 +653,7 @@ Provides a UI for filtering items based on attributes, using a chip trigger and 
 
 ```vue
 <template>
-  <SprAttributeFilter
+  <spr-attribute-filter
     id="attribute_filter1"
     :filter-label="'Status'"
     width="70px"
@@ -682,17 +682,17 @@ const filterList = ref([
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | id | `string` | `'attribute_filter'` | Unique identifier for the component. |
-| filterLabel | `string` | `'Filter'` | Label displayed on the filter trigger. |
-| headerLabel | `string` | `'Add Filter'` | Label displayed on the filter popper header. |
+| filter-label | `string` | `'Filter'` | Label displayed on the filter trigger. |
+| header-label | `string` | `'Add Filter'` | Label displayed on the filter popper header. |
 | disabled | `boolean` | `false` | When true, disables the chip component and the filter dropdown. |
 | multiselect | `boolean` | `false` | Enables multiple selection of filter options. |
-| filterMenuList | `{text: string, value: string}[] \| string[]` | `[]` | List of filter options to display in the dropdown. |
+| filter-menu-list | `{text: string, value: string}[] \| string[]` | `[]` | List of filter options to display in the dropdown. |
 | searchable | `boolean` | `false` | Enable to render a search input within the filter dropdown. |
-| disableLocalSearch | `boolean` | `false` | When true, disables local search functionality (for API searching). |
-| showSelectedFilterCount | `boolean` | `true` | When true, displays a badge with the number of selected filters. |
-| selectedFilterCount | `string` | `undefined` | Custom text for the selected filter count badge. |
-| badgeVariant | `'brand' \| 'information' \| 'danger' \| 'disabled'` | `'danger'` | Variant style for the badge on the chip trigger. |
-| noList | `boolean` | `false` | When true, does not display the filter list (use with body slot). |
+| disable-local-search | `boolean` | `false` | When true, disables local search functionality (for API searching). |
+| show-selected-filter-count | `boolean` | `true` | When true, displays a badge with the number of selected filters. |
+| selected-filter-count | `string` | `undefined` | Custom text for the selected filter count badge. |
+| badge-variant | `'brand' \| 'information' \| 'danger' \| 'disabled'` | `'danger'` | Variant style for the badge on the chip trigger. |
+| no-list | `boolean` | `false` | When true, does not display the filter list (use with body slot). |
 | clearable | `boolean` | `false` | When true, renders an X icon in the chip trigger to clear selected filters. |
 
 ### Dropdown-Specific Props

@@ -104,12 +104,12 @@ const initials = (name: string): string =>
 
     <!-- Top Nav -->
     <nav class="topnav">
-      <div class="topnav-left">
-        <div class="logo">
+      <div class="flex items-center gap-10">
+        <div class="flex items-baseline gap-0.5">
           <span class="logo-sprout">sprout</span>
           <span class="logo-hr">HR</span>
         </div>
-        <div class="nav-links">
+        <div class="flex gap-7">
           <span class="nav-link" @click="navigate('hris-dashboard')">Dashboard</span>
           <span class="nav-link nav-link--active">Employees</span>
           <span class="nav-link">Payroll</span>
@@ -117,7 +117,7 @@ const initials = (name: string): string =>
           <span class="nav-link">Reports</span>
         </div>
       </div>
-      <div class="user-pill">
+      <div class="flex items-center gap-2 cursor-pointer">
         <div class="user-avatar">M</div>
         <span class="user-name">Maria Santos</span>
         <span class="user-caret">▾</span>
@@ -128,9 +128,9 @@ const initials = (name: string): string =>
     <main class="main">
 
       <!-- Page Header -->
-      <div class="page-header">
+      <div class="flex items-end justify-between">
         <div>
-          <p class="breadcrumb">Dashboard <span class="breadcrumb-sep">/</span> Employees</p>
+          <p class="breadcrumb">Dashboard <span class="mx-1 spr-text-color-weak">/</span> Employees</p>
           <h1 class="page-title">Employee Directory</h1>
         </div>
         <spr-button tone="success" variant="primary" size="medium">
@@ -140,7 +140,7 @@ const initials = (name: string): string =>
 
       <!-- Search toolbar -->
       <!-- Research anchor: [domain-knowledge] search above table resolves FP-1 -->
-      <div class="toolbar">
+      <div class="flex items-center gap-3">
         <!-- spr-input-search is deferred (no verified card) — using spr-input type="search" as workaround -->
         <spr-input
           id="employee-search"
@@ -172,16 +172,16 @@ const initials = (name: string): string =>
           <!-- Name cell: avatar + name + employee ID -->
           <!-- spr-avatar — MCP-only, no verified reference card -->
           <template #name="{ row }">
-            <div class="name-cell">
+            <div class="flex items-center gap-3">
               <spr-avatar
                 :initial="initials((row.name as any).title)"
                 variant="initial"
                 color="primary"
                 size="sm"
               />
-              <div class="name-details">
+              <div class="flex flex-col gap-0.5">
                 <span class="emp-name">{{ (row.name as any).title }}</span>
-                <span class="emp-id">{{ row.employeeId }}</span>
+                <span class="spr-body-xs-regular spr-text-color-supporting">{{ row.employeeId }}</span>
               </div>
             </div>
           </template>
@@ -235,18 +235,6 @@ const initials = (name: string): string =>
   flex-shrink: 0;
 }
 
-.topnav-left {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-}
-
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
 .logo-sprout {
   font-size: 18px;
   font-weight: 700;
@@ -259,11 +247,6 @@ const initials = (name: string): string =>
   font-weight: 600;
   color: #86efa8; /* no spr- token — kangkong-300 */
   letter-spacing: 0.04em;
-}
-
-.nav-links {
-  display: flex;
-  gap: 28px;
 }
 
 .nav-link {
@@ -282,13 +265,6 @@ const initials = (name: string): string =>
   font-weight: 500;
   border-bottom: 2px solid #4ade7b; /* no spr- token — kangkong-400 */
   padding-bottom: 2px;
-}
-
-.user-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
 }
 
 .user-avatar {
@@ -321,19 +297,11 @@ const initials = (name: string): string =>
 .main::-webkit-scrollbar { display: none; }
 
 /* Page header */
-.page-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-
 .breadcrumb {
   font-size: 12px;
   color: #5d6c6b; /* no spr- token — mushroom-600 */
   margin-bottom: 4px;
 }
-
-.breadcrumb-sep { margin: 0 4px; color: #b8c1c0; /* no spr- token — mushroom-300 */ }
 
 .page-title {
   font-size: 24px;
@@ -341,34 +309,10 @@ const initials = (name: string): string =>
   color: #00291b; /* no spr- token — brand deep-green */
 }
 
-/* Toolbar */
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 /* Name cell */
-.name-cell {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.name-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .emp-name {
   font-size: 14px;
   font-weight: 600;
   color: #00291b; /* no spr- token — brand deep-green */
-}
-
-.emp-id {
-  font-size: 11px;
-  color: #5d6c6b; /* no spr- token — mushroom-600 */
 }
 </style>

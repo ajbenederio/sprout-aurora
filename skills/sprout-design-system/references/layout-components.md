@@ -360,27 +360,27 @@ const data = ref([
 
 ### Props
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| action | `boolean` | `false` | Enables an action column at the end of the table. |
-| dataTable | `Array<TableData>` | `[]` | Array of row data objects with properties matching header `field` names. |
-| headers | `Array<Header>` | `[]` | Array of header config objects defining table columns. |
-| emptyState | `EmptyState` | `{ description: 'No results found', subDescription: 'Try a different search term', image: 'location', size: 'large' }` | Configuration for the empty state display. |
-| loading | `boolean` | `false` | Displays a loading state instead of data. |
-| tableActions | `{ search: boolean, filter: boolean, option: boolean }` | `{ search: false, filter: false, option: false }` | Configuration for table action controls above the table. |
-| searchModel | `string` | `''` | Two-way binding for search input (use `v-model:searchModel`). |
-| sortOrder | `'asc' \| 'desc'` | `'asc'` | Default sort order. |
-| variant | `'surface' \| 'white'` | `'surface'` | Controls header background color. |
-| isRowClickable | `boolean` | `false` | Enables row click events. |
-| fullHeight | `boolean` | `true` | Table takes full available height of its container. |
-| removeHeaderOnEmpty | `boolean` | `false` | Hides headers when no data exists. |
-| isMultiSelect | `boolean` | `false` | Enables multi-select with checkboxes. |
-| selectedKeyId | `string` | `''` | Key in data object used as row identifier for multi-select. Required with `isMultiSelect`. |
-| returnCompleteSelectedProperties | `boolean` | `false` | If `true`, emits full row data on selection; if `false`, emits only `selectedKeyId` values. |
-| isDraggable | `boolean` | `false` | Enables drag-and-drop for table rows. |
-| allowSelfDrag | `boolean` | `false` | Enables drag-and-drop within the same table. |
-| retainSelectionOnDataChange | `boolean` | `false` | Retains selected rows when table data changes. |
-| showHeaderFilter | `boolean` | `false` | Displays filter dropdowns in headers. Requires `filterList` on header objects. |
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| action | `boolean` | No | `false` | Enables an action column at the end of the table. |
+| dataTable | `Array<TableData>` | **Yes** — table renders blank without this | `[]` | Array of row data objects with properties matching header `field` names. |
+| headers | `Array<Header>` | **Yes** — table renders blank without this | `[]` | Array of header config objects defining table columns. |
+| emptyState | `EmptyState` | No | `{ description: 'No results found', subDescription: 'Try a different search term', image: 'location', size: 'large' }` | Configuration for the empty state display. |
+| loading | `boolean` | No | `false` | Displays a loading state instead of data. |
+| tableActions | `{ search: boolean, filter: boolean, option: boolean }` | No | `{ search: false, filter: false, option: false }` | Configuration for table action controls above the table. |
+| searchModel | `string` | No | `''` | Two-way binding for search input (use `v-model:searchModel`). |
+| sortOrder | `'asc' \| 'desc'` | No | `'asc'` | Default sort order. |
+| variant | `'surface' \| 'white'` | No | `'surface'` | Controls header background color. |
+| isRowClickable | `boolean` | No | `false` | Enables row click events. |
+| fullHeight | `boolean` | No | `true` | Table takes full available height of its container. |
+| removeHeaderOnEmpty | `boolean` | No | `false` | Hides headers when no data exists. |
+| isMultiSelect | `boolean` | No | `false` | Enables multi-select with checkboxes. |
+| selectedKeyId | `string` | **Conditional** — required when `is-multi-select` is `true` | `''` | Key in data object used as row identifier for multi-select. |
+| returnCompleteSelectedProperties | `boolean` | No | `false` | If `true`, emits full row data on selection; if `false`, emits only `selectedKeyId` values. |
+| isDraggable | `boolean` | No | `false` | Enables drag-and-drop for table rows. |
+| allowSelfDrag | `boolean` | No | `false` | Enables drag-and-drop within the same table. |
+| retainSelectionOnDataChange | `boolean` | No | `false` | Retains selected rows when table data changes. |
+| showHeaderFilter | `boolean` | No | `false` | Displays filter dropdowns in headers. Requires `filterList` on header objects. |
 
 ### Events
 
@@ -491,6 +491,7 @@ const handleNext = () => {
 | bordered | `boolean` | `true` | Whether to show border around the pagination component. |
 | editableCurrentPage | `boolean` | `false` | Enable direct input of page number. |
 | showNumberOfRowsDropdown | `boolean` | `true` | When `false`, hides the rows-per-page dropdown. |
+| version | `string` | `undefined` | Browser-confirmed: real prop, no Vue warning thrown. Pass `'backend'` to signal server-side pagination mode. No visual difference from default in static tests — behavior difference is only observable with real backend paging logic. |
 
 ### Events
 
