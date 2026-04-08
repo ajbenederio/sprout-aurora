@@ -180,7 +180,7 @@ const datePickerModel = ref('');
 | id | `String` | - | Required to bind popper within the datepicker. |
 | v-model | `String` | - | Binds the selected date value. |
 | label | `String` | - | Label text for the input field. |
-| width | `String` | `'400px'` | Sets the width of the input. |
+| width | `String` | `'100%'` | Sets the width of the input. |
 | format | `String` | `'MM-DD-YYYY'` | Format for the selected date (e.g., `'MM-DD-YYYY'`, `'YYYY-MM-DD'`, `'MM/DD/YYYY'`). |
 | disabled | `Boolean` | `false` | Disables the date picker. |
 | readonly | `Boolean` | `false` | Makes the date picker read-only. |
@@ -289,8 +289,12 @@ const dateRangeModel = ref({ startDate: '', endDate: '' });
 | id | `String` | - | Required to bind popper within the calendar. |
 | v-model | `Object` | `{ startDate: '', endDate: '' }` | Binds the selected date range value. |
 | label | `String` | - | Label text for the input field. |
-| width | `String` | `'400px'` | Sets the width of the input. |
+| width | `String` | `'100%'` | Sets the width of the input. |
 | format | `String` | `'MM-DD-YYYY'` | Format for the selected date. |
+| separator | `String` | `'to'` | String displayed between the start and end date inputs. |
+| allow-same-day | `Boolean` | `false` | When true, allows the start and end date to be the same day. |
+| max-range | `Number` | `null` | Maximum number of days allowed in the selected range. No limit when `null`. |
+| min-range | `Number` | `1` | Minimum number of days required in the selected range. |
 | disabled | `Boolean` | `false` | Disables the date range calendar. |
 | readonly | `Boolean` | `false` | Makes the date range calendar read-only. |
 | helper-text | `String` | - | Displays a helper message below the input. |
@@ -693,7 +697,7 @@ const filterList = ref([
 | selected-filter-count | `string` | `undefined` | Custom text for the selected filter count badge. |
 | badge-variant | `'brand' \| 'information' \| 'danger' \| 'disabled'` | `'danger'` | Variant style for the badge on the chip trigger. |
 | no-list | `boolean` | `false` | When true, does not display the filter list (use with body slot). |
-| clearable | `boolean` | `false` | When true, renders an X icon in the chip trigger to clear selected filters. |
+| clearable | `boolean` | `true` | When true, renders an X icon in the chip trigger to clear selected filters. |
 
 ### Dropdown-Specific Props
 
@@ -718,7 +722,6 @@ const filterList = ref([
 | onCloseFilter | - | Emitted when the filter dropdown is closed. |
 | onSelectFilter | `(selectedFilters: MenuListType[])` | Emitted when selecting a filter option. |
 | infiniteScrollTrigger | - | Emitted when the user scrolls to the bottom of the dropdown. |
-| update:search | `(searchString: string)` | Emitted when the search input value changes. |
 | onClearFilter | - | Emitted when the clear action is triggered. |
 
 ### Slots
