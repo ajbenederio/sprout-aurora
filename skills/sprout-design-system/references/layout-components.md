@@ -108,7 +108,7 @@ A flexible container with optional header, content, and footer used to group rel
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
 | id | `string` | `''` | Unique identifier for the element. |
-| tone | `'plain' \| 'neutral' \| 'success' \| 'information' \| 'pending' \| 'caution' \| 'accent' \| 'danger'` | `''` | Sets the card's visual tone/color scheme. |
+| tone | `'plain' \| 'neutral' \| 'success' \| 'information' \| 'pending' \| 'caution' \| 'accent' \| 'danger'` | `'plain'` | Sets the card's visual tone/color scheme. |
 | title | `string` | `''` | Sets the card's title in the header section. |
 | subtitle | `string` | `''` | Subtitle displayed below the title. Requires title to be visible. |
 | header-icon | `string` | `''` | Iconify icon name displayed in the header. Requires title to be visible. |
@@ -172,7 +172,7 @@ const isOpen = ref(false);
 | Name | Description |
 |------|-------------|
 | default | The content that will be collapsed/expanded. |
-| trigger | Custom trigger element. Provides `{ toggleCollapsible: () => void }` scoped prop that auto-updates the v-model. |
+| trigger | Custom trigger element. Provides `{ 'toggle-collapsible': () => void }` scoped prop that auto-updates the v-model. |
 
 ---
 
@@ -237,6 +237,9 @@ const menuList = ref([
 | radio-list | `boolean` | `false` | Display radio buttons for single-select mode. |
 | allow-deselect | `boolean` | `false` | Allow deselection of a selected item in single-select mode. |
 | allow-select-all | `boolean` | `false` | Show a "Select All" / "Unselect All" button in multi-select mode. |
+| avatar-variant | `string` | `''` | Avatar variant applied to list item avatars. |
+| avatar-source | `string` | `''` | Avatar source URL applied to list item avatars. |
+| infinite-scroll-loader | `boolean` | `false` | When true, shows an infinite scroll loading indicator at the bottom of the list. |
 
 ### Events
 
@@ -246,6 +249,12 @@ const menuList = ref([
 | update:searchValue | `string` | Emitted when search input changes. |
 | get-single-selected-item | `MenuListType` | Emitted when an item is selected in single-select mode. |
 | get-single-deselected-item | `MenuListType` | Emitted when an item is deselected in allow-deselect mode. |
+
+### Slots
+
+| Name | Description |
+|------|-------------|
+| list-controls | Custom controls rendered above the list items (e.g. select-all, bulk actions). |
 
 ### MenuListType Item Properties
 

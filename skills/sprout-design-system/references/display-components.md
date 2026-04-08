@@ -40,7 +40,7 @@ Visual representation of users or entities with support for images, initials, ic
 | notificationText | `string` | `'0'` | Text to display in the notification indicator. |
 | badge | `boolean` | `false` | Displays a status badge at the bottom-right corner. |
 | initial | `string` | `'Avatar'` | Text to extract initials from when using `variant="initial"`. Single name uses first letter; multiple names use first and last initials. |
-| color | `'primary' \| 'secondary'` | `'primary'` | Background color scheme. `primary`: surface color; `secondary`: standard background color. |
+| color | `'primary' \| 'secondary' \| 'tertiary'` | `'primary'` | Background color scheme. `primary`: surface color; `secondary`: standard background color. |
 | status | `'brand' \| 'information' \| 'danger' \| 'disabled'` | `'brand'` | Status indicator type when `badge` is true. brand=green, information=blue, danger=red, disabled=gray. |
 | count | `number` | `0` | Numeric value displayed with "+" prefix when using `variant="count"`. |
 | loading | `boolean` | `false` | Displays a skeletal loading state animation. |
@@ -151,6 +151,7 @@ Interactive compact elements for filtering, selection, tagging, and displaying s
 | active | `boolean` | `false` | Determines if the chip is in an active/selected state. |
 | disabled | `boolean` | `false` | Makes the chip non-interactive with disabled styling. |
 | closable | `boolean` | `false` | Displays a close button that emits a close event when clicked. |
+| removable | `boolean` | `false` | Displays a remove icon allowing the chip to be removed. |
 | variant | `'tag' \| 'day'` | `'tag'` | Changes appearance and behavior. `day` variant shows circular day-of-week chips. |
 | icon | `string` | `''` | Iconify icon name to display before the label. |
 | iconWeight | `'regular' \| 'bold' \| 'thin' \| 'light' \| 'fill' \| 'duotone'` | `'regular'` | Visual weight/style of the icon. |
@@ -162,8 +163,7 @@ Interactive compact elements for filtering, selection, tagging, and displaying s
 | badgeText | `string` | `'0'` | Text content of the badge. |
 | badgeVariant | `'brand' \| 'danger' \| 'disabled'` | `'brand'` | Visual style of the badge. |
 | visible | `boolean` | `true` | Controls whether the chip is rendered. |
-| day | `'Sunday' \| 'Monday' \| 'Tuesday' \| 'Wednesday' \| 'Thursday' \| 'Friday' \| 'Saturday'` | - | Day name for the day variant. |
-
+| day | `'Sunday' \| 'Monday' \| 'Tuesday' \| 'Wednesday' \| 'Thursday' \| 'Friday' \| 'Saturday'` | `'Sunday'` | Day name for the day variant. |
 ### Events
 
 | Name | Parameters | Description |

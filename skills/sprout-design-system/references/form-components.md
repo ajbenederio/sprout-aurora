@@ -607,7 +607,6 @@ const sliderValue = ref(0);
 | Name | Parameters | Description |
 |------|------------|-------------|
 | update:modelValue | `(value: number)` | Emitted continuously as the user drags the thumb. |
-| slideend | `(value: number)` | Emitted when the user completes a sliding interaction (releases pointer). |
 
 ---
 
@@ -739,7 +738,7 @@ const options = ref([
 | supporting-label | string | `''` | Text beside label with supporting style. |
 | input-loader | Boolean | `false` | Displays a loading spinner inside the select input. |
 | placement | String | `'bottom'` | Popper placement. |
-| triggers | Array | `['click']` | Events that trigger the dropdown. |
+| triggers | Array | `[]` | Events that trigger the dropdown. |
 | popper-triggers | Array | `[]` | Events that trigger the popper element. |
 | auto-hide | Boolean | `true` | Hides dropdown when clicking outside. |
 | popper-strategy | String | `'absolute'` | Popper positioning strategy. |
@@ -837,9 +836,9 @@ const options = ref([
 | display-helper | Boolean | `false` | Show helper text. |
 | clearable | Boolean | `false` | Show clear (x) icon to remove value. |
 | placement | String | `'bottom'` | Popper placement. |
-| triggers | Array | `['click']` | Events that trigger the dropdown. |
+| triggers | Array | `[]` | Events that trigger the dropdown. |
 | popper-triggers | Array | `[]` | Events that trigger the popper element. |
-| auto-hide | Boolean | `true` | Hides dropdown when clicking outside. |
+| auto-hide | Boolean | `false` | Hides dropdown when clicking outside. |
 | wrapper-position | String | `'relative'` | CSS position of wrapper. |
 | width | String | `'100%'` | Width of the select wrapper. |
 | popper-width | String | `'100%'` | Width of the select popper. |
@@ -892,7 +891,7 @@ const files = ref([]);
 |------|------|---------|-------------|
 | type | `'default'` \| `'center'` | `'default'` | Layout style: 'default' (horizontal) or 'center' (vertical with prominent drop area). |
 | title | string | `undefined` | Title/label displayed above the file upload component. |
-| modelValue | File[] | `[]` | Array of uploaded files, bound with v-model. |
+| modelValue | `File[]` | `[]` | **Required.** Array of uploaded files, bound with v-model. |
 | multiple | boolean | `false` | When true, allows uploading multiple files at once. |
 | disabled | boolean | `false` | When true, disables file upload functionality. |
 | maxFileSize | number | `10` | Maximum allowed file size in megabytes (MB). |
@@ -901,7 +900,8 @@ const files = ref([]);
 | errorMessages | string[] | `[]` | Array of error messages for validation failures. |
 | hideFilePreviewIcon | boolean | `false` | When true, hides the check icon next to uploaded files. |
 | hideDropzoneLabel | boolean | `false` | When true, hides the "drop your files to upload" label. |
-| supportedFileTypeLabel | string | Auto-generated | Custom text for supported file types display. |
+| showSupportedFileTypeLabel | boolean | `true` | When true, displays the supported file types label below the drop zone. |
+| supportedFileTypeLabel | string | `null` | Custom text override for the supported file types label. When null, auto-generates from `fileTypes`. |
 | showProgress | boolean | `false` | When true, displays a progress bar for upload status. |
 | progressValue | number | `0` | Progress percentage value (0-100). |
 
@@ -911,3 +911,9 @@ const files = ref([]);
 |------|------------|-------------|
 | update:modelValue | `File[]` | Emitted when files are added, replaced, or removed. |
 | validation-error | `string[]` | Emitted when files fail validation. Emits empty array when all files are valid. |
+
+### Slots
+
+| Name | Description |
+|------|-------------|
+| file-upload-progress-bar | Custom content for the upload progress bar area. Requires `showProgress: true`. |
