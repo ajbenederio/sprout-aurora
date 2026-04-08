@@ -1,28 +1,43 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-const sel = ref([])
+
+const snackbar = ref()
+
+function triggerSuccess() {
+  snackbar.value.showSuccess({ text: 'Changes saved successfully', showIcon: true })
+}
+function triggerDanger() {
+  snackbar.value.showDanger({ text: 'Something went wrong', showIcon: true })
+}
+function triggerInfo() {
+  snackbar.value.showInformation({ text: 'Your session will expire soon', showIcon: true })
+}
+function triggerCaution() {
+  snackbar.value.showCaution({ text: 'This action cannot be undone', showIcon: true })
+}
+function triggerWithAction() {
+  snackbar.value.showSnackbar({
+    text: 'Employee record updated',
+    tone: 'success',
+    showAction: true,
+    actionText: 'Undo',
+    action: () => console.log('[snack] undo clicked'),
+    showIcon: true,
+    duration: 6000,
+  })
+}
 </script>
 
 <template>
-  <div style="padding: 24px; max-width: 500px; display: flex; flex-direction: column; gap: 32px;">
+  <div style="padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+    <h2>spr-snackbar Verification</h2>
 
-    <div>
-      <p style="font-weight: bold; margin-bottom: 8px;">#empty slot</p>
-      <spr-filter id="fe1" v-model="sel" :options="[]" label="Empty slot test">
-        <template #empty>
-          <span style="color: purple; padding: 8px; display: block;">EMPTY SLOT</span>
-        </template>
-      </spr-filter>
-    </div>
+    <spr-snackbar ref="snackbar" />
 
-    <div>
-      <p style="font-weight: bold; margin-bottom: 8px;">#empty-state slot</p>
-      <spr-filter id="fe2" v-model="sel" :options="[]" label="Empty-state slot test">
-        <template #empty-state>
-          <span style="color: green; padding: 8px; display: block;">EMPTY-STATE SLOT</span>
-        </template>
-      </spr-filter>
-    </div>
-
+    <button @click="triggerSuccess">1. Success</button>
+    <button @click="triggerDanger">2. Danger</button>
+    <button @click="triggerInfo">3. Information</button>
+    <button @click="triggerCaution">4. Caution</button>
+    <button @click="triggerWithAction">5. With Undo action (6s duration)</button>
   </div>
 </template>
