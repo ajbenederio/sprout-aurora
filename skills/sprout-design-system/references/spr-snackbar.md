@@ -179,7 +179,7 @@ snackbar.value.showInformation({ text: 'Step 2 running...', showIcon: true })
 
 ## Verified Behaviors
 
-- ✅ `ref="snackbar"` exposes `showSuccess`, `showDanger`, `showInformation`, `showCaution`, `showSnackbar` methods
+- ✅ `ref="snackbar"` exposes `showSuccess`, `showDanger`, `showInformation`, `showCaution`, `showSnackbar` methods — confirmed present on the Vue component proxy via DevTools console (`Proxy(Object) {showSnackbar: f, showSuccess: f, showInformation: f, showDanger: f, showCaution: f}`)
 - ✅ Toasts teleport to `<body>` and render fixed on screen — outside normal DOM flow
 - ✅ All 4 tone variants render with distinct colors — green, red, blue, yellow
 - ✅ `showIcon: true` renders a tone-matched icon in the snack

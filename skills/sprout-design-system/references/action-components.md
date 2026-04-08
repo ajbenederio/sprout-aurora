@@ -693,7 +693,7 @@ const filterList = ref([
 | selected-filter-count | `string` | `undefined` | Custom text for the selected filter count badge. |
 | badge-variant | `'brand' \| 'information' \| 'danger' \| 'disabled'` | `'danger'` | Variant style for the badge on the chip trigger. |
 | no-list | `boolean` | `false` | When true, does not display the filter list (use with body slot). |
-| clearable | `boolean` | `false` | When true, renders an X icon in the chip trigger to clear selected filters. |
+| clearable | `boolean` | `true` | When true, renders an X icon in the chip trigger to clear selected filters. |
 
 ### Dropdown-Specific Props
 
@@ -718,7 +718,6 @@ const filterList = ref([
 | onCloseFilter | - | Emitted when the filter dropdown is closed. |
 | onSelectFilter | `(selectedFilters: MenuListType[])` | Emitted when selecting a filter option. |
 | infiniteScrollTrigger | - | Emitted when the user scrolls to the bottom of the dropdown. |
-| update:search | `(searchString: string)` | Emitted when the search input value changes. |
 | onClearFilter | - | Emitted when the clear action is triggered. |
 
 ### Slots
