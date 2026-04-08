@@ -180,7 +180,7 @@ const datePickerModel = ref('');
 | id | `String` | - | Required to bind popper within the datepicker. |
 | v-model | `String` | - | Binds the selected date value. |
 | label | `String` | - | Label text for the input field. |
-| width | `String` | `'400px'` | Sets the width of the input. |
+| width | `String` | `'100%'` | Sets the width of the input. |
 | format | `String` | `'MM-DD-YYYY'` | Format for the selected date (e.g., `'MM-DD-YYYY'`, `'YYYY-MM-DD'`, `'MM/DD/YYYY'`). |
 | disabled | `Boolean` | `false` | Disables the date picker. |
 | readonly | `Boolean` | `false` | Makes the date picker read-only. |
@@ -289,8 +289,12 @@ const dateRangeModel = ref({ startDate: '', endDate: '' });
 | id | `String` | - | Required to bind popper within the calendar. |
 | v-model | `Object` | `{ startDate: '', endDate: '' }` | Binds the selected date range value. |
 | label | `String` | - | Label text for the input field. |
-| width | `String` | `'400px'` | Sets the width of the input. |
+| width | `String` | `'100%'` | Sets the width of the input. |
 | format | `String` | `'MM-DD-YYYY'` | Format for the selected date. |
+| separator | `String` | `'to'` | String displayed between the start and end date inputs. |
+| allow-same-day | `Boolean` | `false` | When true, allows the start and end date to be the same day. |
+| max-range | `Number` | `null` | Maximum number of days allowed in the selected range. No limit when `null`. |
+| min-range | `Number` | `1` | Minimum number of days required in the selected range. |
 | disabled | `Boolean` | `false` | Disables the date range calendar. |
 | readonly | `Boolean` | `false` | Makes the date range calendar read-only. |
 | helper-text | `String` | - | Displays a helper message below the input. |
