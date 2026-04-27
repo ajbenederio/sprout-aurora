@@ -1,194 +1,230 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import type { MinMaxYearType } from 'design-system-next'
 
-// ─── Form state ─────────────────────────────────────────────────────────────
-const dateRange  = ref({ startDate: '', endDate: '' })
-const leaveType  = ref('')
-const reason     = ref('')
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface DateRange {
+  startDate: string
+  endDate:   string
+}
 
-// ─── Submission state ────────────────────────────────────────────────────────
-const submitted  = ref(false)  // true after first submit attempt — enables live validation
-const isSuccess  = ref(false)
+// ─── Form state ───────────────────────────────────────────────────────────────
+const dateRange = ref<DateRange>({ startDate: '', endDate: '' })
+const leaveType = ref('')
+const reason    = ref('')
 
-// ─── Leave type options ──────────────────────────────────────────────────────
+// ─── UI state ─────────────────────────────────────────────────────────────────
+const submitted = ref(false)
+const isSuccess = ref(false)
+
+// ─── Leave type options (string array keeps v-model as plain string) ──────────
 const leaveTypeOptions = [
-  { text: 'Vacation Leave (VL)',          value: 'VL'   },
-  { text: 'Sick Leave (SL)',              value: 'SL'   },
-  { text: 'Emergency Leave',              value: 'EL'   },
-  { text: 'Bereavement Leave',            value: 'BL'   },
-  { text: 'Maternity Leave',              value: 'ML'   },
-  { text: 'Paternity Leave',              value: 'PL'   },
-  { text: 'Service Incentive Leave (SIL)',value: 'SIL'  },
+  'Vacation Leave',
+  'Sick Leave',
+  'Emergency Leave',
+  'Maternity / Paternity Leave',
+  'Birthday Leave',
+  'Bereavement Leave',
 ]
 
-// ─── Validation ──────────────────────────────────────────────────────────────
+// ─── Date picker year constraints ─────────────────────────────────────────────
+const minMaxYear: MinMaxYearType = {
+  min: new Date().getFullYear(),
+  max: new Date().getFullYear() + 2,
+}
+
+// ─── Validation ───────────────────────────────────────────────────────────────
 const errors = computed(() => ({
-  dateRange: submitted.value && (!dateRange.value.startDate || !dateRange.value.endDate),
-  leaveType: submitted.value && !leaveType.value,
-  reason:    submitted.value && reason.value.trim().length < 10,
+  dateRange: !dateRange.value.startDate || !dateRange.value.endDate,
+  leaveType: !leaveType.value,
+  reason:    reason.value.trim().length < 10,
 }))
 
-const isValid = computed(() =>
-  !!dateRange.value.startDate &&
-  !!dateRange.value.endDate &&
-  !!leaveType.value &&
-  reason.value.trim().length >= 10
-)
+const hasErrors = computed(() => Object.values(errors.value).some(Boolean))
 
-// ─── Leave duration display ──────────────────────────────────────────────────
+// ─── Derived: leave duration in calendar days ─────────────────────────────────
 const leaveDuration = computed(() => {
-  const { startDate, endDate } = dateRange.value
-  if (!startDate || !endDate) return null
-  const start = new Date(startDate)
-  const end   = new Date(endDate)
-  const diff  = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
-  return diff === 1 ? '1 day' : `${diff} days`
+  if (!dateRange.value.startDate || !dateRange.value.endDate) return null
+  const start = new Date(dateRange.value.startDate)
+  const end   = new Date(dateRange.value.endDate)
+  const days  = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1
+  return days > 0 ? days : null
 })
 
-// ─── Handlers ────────────────────────────────────────────────────────────────
+// ─── Submit / reset ───────────────────────────────────────────────────────────
 function handleSubmit() {
   submitted.value = true
-  if (!isValid.value) return
-
-  // Simulate submission success
+  if (hasErrors.value) return
   isSuccess.value = true
 }
 
 function handleReset() {
-  dateRange.value  = { startDate: '', endDate: '' }
-  leaveType.value  = ''
-  reason.value     = ''
-  submitted.value  = false
-  isSuccess.value  = false
+  dateRange.value = { startDate: '', endDate: '' }
+  leaveType.value = ''
+  reason.value    = ''
+  submitted.value = false
+  isSuccess.value = false
+}
+
+// ─── Date formatting helper ───────────────────────────────────────────────────
+function formatDate(d: string): string {
+  if (!d) return ''
+  const [m, day, y] = d.split('-')
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  return `${months[parseInt(m) - 1]} ${parseInt(day)}, ${y}`
 }
 </script>
 
 <template>
   <div class="lrf-page">
 
-    <!-- Page header -->
+    <!-- ── Page header ───────────────────────────────────────────────────────── -->
     <div class="lrf-header">
-      <div class="lrf-header__eyebrow">Self Service</div>
+      <div class="lrf-header__eyebrow">Leave Management</div>
       <h1 class="lrf-header__title">File a Leave Request</h1>
       <p class="lrf-header__subtitle">
-        Submit your leave request for approval. Make sure dates don't overlap with existing approved requests.
+        Complete all fields below. Your request will be routed to your direct supervisor for approval.
       </p>
     </div>
 
-    <!-- ── Success state ────────────────────────────────────────────────────── -->
+    <!-- ── Success state ─────────────────────────────────────────────────────── -->
     <div v-if="isSuccess" class="lrf-success">
-      <div class="lrf-success__icon">✓</div>
-      <div class="lrf-success__body">
-        <p class="lrf-success__title">Leave request submitted</p>
-        <p class="lrf-success__desc">
-          Your request has been sent to your manager for approval.
-          You'll receive a notification once it's reviewed.
-        </p>
+      <div class="lrf-success__icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="#dcfce6"/>
+          <path d="M9 16.5L13.5 21L23 12" stroke="#158039" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <spr-button @click="handleReset">File another request</spr-button>
+      <h2 class="lrf-success__title">Leave Request Filed</h2>
+      <p class="lrf-success__body">
+        Your request has been submitted and is pending supervisor approval.
+        You will receive an email notification once a decision is made.
+      </p>
+
+      <!-- Filed request summary -->
+      <div class="lrf-summary">
+        <div class="lrf-summary__row">
+          <span class="lrf-summary__label">Leave Type</span>
+          <span class="lrf-summary__value">{{ leaveType }}</span>
+        </div>
+        <div class="lrf-summary__row">
+          <span class="lrf-summary__label">Dates</span>
+          <span class="lrf-summary__value">
+            {{ formatDate(dateRange.startDate) }} – {{ formatDate(dateRange.endDate) }}
+            <span class="lrf-summary__days">
+              ({{ leaveDuration }} day{{ leaveDuration !== 1 ? 's' : '' }})
+            </span>
+          </span>
+        </div>
+        <div class="lrf-summary__row">
+          <span class="lrf-summary__label">Reason</span>
+          <span class="lrf-summary__value">{{ reason }}</span>
+        </div>
+      </div>
+
+      <spr-button variant="secondary" @click="handleReset">
+        File another request
+      </spr-button>
     </div>
 
-    <!-- ── Form ─────────────────────────────────────────────────────────────── -->
-    <div v-else class="lrf-card">
+    <!-- ── Form ──────────────────────────────────────────────────────────────── -->
+    <form v-else class="lrf-form" @submit.prevent="handleSubmit">
 
-      <!-- Date range -->
+      <!-- Date range — leave period -->
+      <!-- displayHelper required for #helperMessage slot to render (spr-date-range-picker) -->
       <div class="lrf-field">
         <spr-date-range-picker
-          id="leave-date-range"
+          id="leave-dates"
           v-model="dateRange"
-          label="Leave Dates"
-          width="100%"
-          :error="errors.dateRange"
-          :displayHelper="errors.dateRange"
-          helperText="Please select both a start and end date"
-        />
-        <p v-if="leaveDuration && !errors.dateRange" class="lrf-duration-hint">
-          Duration: <strong>{{ leaveDuration }}</strong>
-        </p>
-      </div>
-
-      <!-- Leave type -->
-      <div class="lrf-field">
-        <spr-select
-          id="leave-type"
-          v-model="leaveType"
-          :options="leaveTypeOptions"
-          textField="text"
-          valueField="value"
-          label="Leave Type"
-          placeholder="Select leave type..."
-          :clearable="true"
-          :error="errors.leaveType"
-          :displayHelper="errors.leaveType"
-          helperText="Please select a leave type"
-        />
-      </div>
-
-      <!-- Reason -->
-      <div class="lrf-field">
-        <spr-textarea
-          id="leave-reason"
-          v-model="reason"
-          label="Reason for Leave"
-          supportingLabel="Required"
-          placeholder="Briefly describe the reason for your leave request..."
-          :rows="5"
-          :error="errors.reason"
-          :hasCounter="true"
-          :maxLength="500"
+          label="Leave Period"
+          :minMaxYear="minMaxYear"
+          :error="submitted && errors.dateRange"
+          :displayHelper="submitted && errors.dateRange"
         >
           <template #helperMessage>
-            <span v-if="errors.reason" class="lrf-error-msg">
-              {{ reason.trim().length === 0
-                  ? 'Please provide a reason for your leave.'
-                  : 'Reason must be at least 10 characters.' }}
-            </span>
+            <span class="lrf-error-msg">Please select both a start and end date.</span>
           </template>
-        </spr-textarea>
+        </spr-date-range-picker>
+
+        <!-- Live duration pill — appears once both dates are selected -->
+        <div v-if="leaveDuration" class="lrf-duration">
+          <spr-lozenge
+            :label="`${leaveDuration} day${leaveDuration !== 1 ? 's' : ''}`"
+            tone="information"
+          />
+        </div>
       </div>
 
-      <!-- Policy reminder -->
-      <div class="lrf-reminder">
-        <span class="lrf-reminder__icon">ℹ</span>
-        <p class="lrf-reminder__text">
-          Vacation and emergency leaves require at least 3 working days' advance notice.
-          Sick leave may be filed on the day of absence with supervisor notification by 9:00 AM.
-        </p>
+      <!-- Leave type select -->
+      <spr-select
+        id="leave-type"
+        v-model="leaveType"
+        label="Leave Type"
+        placeholder="Select leave type..."
+        :options="leaveTypeOptions"
+        :error="submitted && errors.leaveType"
+        :displayHelper="submitted && errors.leaveType"
+        helperText="Please select a leave type."
+        :clearable="true"
+      />
+
+      <!-- Reason textarea — #helperMessage renders without displayHelper on spr-textarea -->
+      <spr-textarea
+        id="leave-reason"
+        v-model="reason"
+        label="Reason"
+        supporting-label="Required"
+        placeholder="Briefly describe the reason for your leave..."
+        :rows="5"
+        :error="submitted && errors.reason"
+        :hasCounter="true"
+        :maxLength="500"
+      >
+        <template #helperMessage>
+          <span v-if="submitted && errors.reason" class="lrf-error-msg">
+            Please provide a reason (at least 10 characters).
+          </span>
+        </template>
+      </spr-textarea>
+
+      <!-- Validation summary banner — shown only after a failed submit attempt -->
+      <div v-if="submitted && hasErrors" class="lrf-validation-banner">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="lrf-validation-banner__icon">
+          <circle cx="8" cy="8" r="7.25" stroke="#b45309" stroke-width="1.5"/>
+          <path d="M8 5v3.5" stroke="#b45309" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="8" cy="11" r="0.75" fill="#b45309"/>
+        </svg>
+        Please fix the errors above before submitting.
       </div>
 
-      <!-- Actions -->
+      <!-- Form actions -->
       <div class="lrf-actions">
-        <spr-button
-          variant="tertiary"
-          @click="handleReset"
-        >
+        <spr-button variant="secondary" type="button" @click="handleReset">
           Clear form
         </spr-button>
-        <spr-button
-          tone="success"
-          @click="handleSubmit"
-        >
+        <spr-button variant="primary" tone="success" type="submit">
           Submit request
         </spr-button>
       </div>
 
-    </div>
+    </form>
+
   </div>
 </template>
 
 <style scoped>
 .lrf-page {
-  max-width: 680px;
+  max-width: 640px;
   margin: 0 auto;
   padding: 48px 32px 80px;
   font-family: 'Rubik', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
-.lrf-header {
-  margin-bottom: 32px;
-}
-
+/* ── Header ──────────────────────────────────────────────────────────────── */
 .lrf-header__eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -202,8 +238,7 @@ function handleReset() {
   font-size: 26px;
   font-weight: 700;
   color: #00291b;
-  margin: 0 0 10px;
-  line-height: 1.25;
+  margin: 0 0 8px;
 }
 
 .lrf-header__subtitle {
@@ -213,113 +248,116 @@ function handleReset() {
   margin: 0;
 }
 
-/* ── Card ───────────────────────────────────────────────────────────────── */
-.lrf-card {
-  background: #fff;
-  border: 1px solid #d9dede; /* mushroom-200 */
-  border-radius: 8px;
-  padding: 32px;
+/* ── Form ────────────────────────────────────────────────────────────────── */
+.lrf-form {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-/* ── Fields ─────────────────────────────────────────────────────────────── */
+/* ── Date field + duration pill ──────────────────────────────────────────── */
 .lrf-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
-.lrf-duration-hint {
-  font-size: 13px;
-  color: #5d6c6b;
-  margin: 0;
+.lrf-duration {
+  display: flex;
+  align-items: center;
 }
 
-.lrf-duration-hint strong {
-  color: #158039;
-}
-
+/* ── Inline error text ───────────────────────────────────────────────────── */
 .lrf-error-msg {
   font-size: 12px;
-  color: #da2f38; /* tomato-600 */
+  color: #dc2626;
 }
 
-/* ── Policy reminder ────────────────────────────────────────────────────── */
-.lrf-reminder {
+/* ── Validation summary banner ───────────────────────────────────────────── */
+.lrf-validation-banner {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: #f0fdf4; /* kangkong-50 */
-  border: 1px solid #bbf7ce; /* kangkong-200 */
-  border-radius: 6px;
-  padding: 12px 16px;
-}
-
-.lrf-reminder__icon {
-  font-size: 16px;
-  color: #158039;
-  flex-shrink: 0;
-  line-height: 1.5;
-}
-
-.lrf-reminder__text {
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
-  color: #14532b; /* kangkong-900 */
-  line-height: 1.6;
-  margin: 0;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  padding: 10px 14px;
 }
 
-/* ── Actions ────────────────────────────────────────────────────────────── */
+.lrf-validation-banner__icon {
+  flex-shrink: 0;
+}
+
+/* ── Form actions ────────────────────────────────────────────────────────── */
 .lrf-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding-top: 8px;
-  border-top: 1px solid #eff1f1; /* mushroom-50 */
 }
 
-/* ── Success state ──────────────────────────────────────────────────────── */
+/* ── Success state ───────────────────────────────────────────────────────── */
 .lrf-success {
-  background: #fff;
-  border: 1px solid #bbf7ce; /* kangkong-200 */
-  border-radius: 8px;
-  padding: 32px;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 20px;
+  gap: 16px;
 }
 
 .lrf-success__icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #dcfce6; /* kangkong-100 */
-  color: #158039;
-  font-size: 20px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.lrf-success__body {
-  flex: 1;
+  line-height: 0;
 }
 
 .lrf-success__title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: #00291b;
-  margin: 0 0 6px;
+  margin: 0;
 }
 
-.lrf-success__desc {
+.lrf-success__body {
   font-size: 14px;
   color: #5d6c6b;
   line-height: 1.6;
   margin: 0;
+}
+
+/* ── Filed request summary card ──────────────────────────────────────────── */
+.lrf-summary {
+  width: 100%;
+  border: 1px solid #d9dede;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lrf-summary__row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid #eff1f1;
+}
+
+.lrf-summary__row:last-child {
+  border-bottom: none;
+}
+
+.lrf-summary__label {
+  width: 100px;
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #4c5857;
+}
+
+.lrf-summary__value {
+  color: #262b2b;
+  line-height: 1.5;
+}
+
+.lrf-summary__days {
+  color: #5d6c6b;
+  margin-left: 4px;
 }
 </style>

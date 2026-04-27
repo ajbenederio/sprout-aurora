@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import type { Header } from 'design-system-next'
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface Employee {
   id:          number
   name:        string
@@ -27,7 +27,7 @@ function emp(
   }
 }
 
-// ─── Employee data ────────────────────────────────────────────────────────────
+// ─── Employee seed data ───────────────────────────────────────────────────────
 const employees = ref<Employee[]>([
   emp(1,  'Maria Santos',     'Engineering',     'Frontend Developer',     'Active'),
   emp(2,  'Jose Reyes',       'Human Resources', 'HR Specialist',          'Active'),
@@ -48,15 +48,15 @@ const employees = ref<Employee[]>([
 
 // ─── Table headers ────────────────────────────────────────────────────────────
 const headers = ref<Header[]>([
-  { field: '_name',       name: 'Name',       sort: true  },
-  { field: '_department', name: 'Department', sort: true  },
-  { field: '_position',   name: 'Position',   sort: false },
-  { field: '_status',     name: 'Status'                  },
+  { field: '_name',       name: 'Name',              sort: true  },
+  { field: '_department', name: 'Department',         sort: true  },
+  { field: '_position',   name: 'Position',           sort: false },
+  { field: '_status',     name: 'Employment Status'               },
 ])
 
 // ─── Multi-select state ───────────────────────────────────────────────────────
-// With returnCompleteSelectedProperties=true, emit payload is full row objects
-const selectedData = ref<any[]>([])
+// returnCompleteSelectedProperties=true → payload is full row objects
+const selectedData  = ref<any[]>([])
 const selectedCount = computed(() => selectedData.value.length)
 const hasSelection  = computed(() => selectedCount.value > 0)
 
@@ -87,7 +87,7 @@ const valueOptions = computed(() => {
   return []
 })
 
-// Reset value whenever field changes
+// Reset value when field changes
 watch(updateField, () => { updateValue.value = '' })
 
 const canApply = computed(() =>
@@ -97,22 +97,23 @@ const canApply = computed(() =>
 // ─── Undo snapshot ────────────────────────────────────────────────────────────
 const snapshot = ref<Employee[] | null>(null)
 
-// ─── Snackbar ─────────────────────────────────────────────────────────────────
-const snackbarRef = ref<any>(null)
+// ─── Snackbar (template ref — the only supported API at v2.27.9) ──────────────
+const snackbar = ref()
 
 // ─── Apply changes ────────────────────────────────────────────────────────────
 function applyChanges() {
   if (!canApply.value) return
 
-  // Save snapshot for undo
+  // Save snapshot before mutation for undo
   snapshot.value = JSON.parse(JSON.stringify(employees.value))
 
-  const selectedIds = new Set(selectedData.value.map((row: any) => row.id))
-  const count       = selectedIds.size
-  const field       = updateField.value
-  const value       = updateValue.value
-  const fieldLabel  = fieldOptions.find(f => f.value === field)?.text ?? field
+  const selectedIds  = new Set(selectedData.value.map((row: any) => row.id))
+  const count        = selectedIds.size
+  const field        = updateField.value
+  const value        = updateValue.value
+  const fieldLabel   = fieldOptions.find(f => f.value === field)?.text ?? field
 
+  // Mutate employees — new array triggers table re-render + selection reset
   employees.value = employees.value.map(e => {
     if (!selectedIds.has(e.id)) return e
     const updated = { ...e, [field]: value }
@@ -121,14 +122,16 @@ function applyChanges() {
     return updated
   })
 
-  // Reset selection and form
+  // Reset form
   selectedData.value = []
   updateField.value  = ''
   updateValue.value  = ''
 
-  console.log('snackbarRef.value:', snackbarRef.value)
-  snackbarRef.value?.showSuccess({
+  // Confirm via snackbar with Undo action
+  snackbar.value.showSnackbar({
     text:       `${count} employee${count !== 1 ? 's' : ''} updated — ${fieldLabel} set to "${value}"`,
+    tone:       'success',
+    showIcon:   true,
     showAction: true,
     actionText: 'Undo',
     action:     handleUndo,
@@ -136,13 +139,15 @@ function applyChanges() {
   })
 }
 
+// ─── Undo ─────────────────────────────────────────────────────────────────────
 function handleUndo() {
   if (!snapshot.value) return
   employees.value = snapshot.value
   snapshot.value  = null
 
-  snackbarRef.value?.showInformation({
+  snackbar.value.showInformation({
     text:     'Update undone — employees restored',
+    showIcon: true,
     duration: 4000,
   })
 }
@@ -152,7 +157,7 @@ function statusTone(status: string): string {
   if (status === 'Active')       return 'success'
   if (status === 'On Probation') return 'caution'
   if (status === 'On Leave')     return 'information'
-  if (status === 'Inactive')     return 'danger'
+  if (status === 'Inactive')     return 'neutral'
   return 'neutral'
 }
 
@@ -164,28 +169,24 @@ function statusFill(status: string): boolean {
 <template>
   <div class="bu-page">
 
-    <!-- ── Page header ───────────────────────────────────────────────────── -->
+    <!-- ── Page header ───────────────────────────────────────────────────────── -->
     <div class="bu-header">
       <div class="bu-header__eyebrow">Employees</div>
-      <div class="bu-header__row">
-        <div>
-          <h1 class="bu-header__title">Bulk Employee Update</h1>
-          <p class="bu-header__subtitle">
-            Select one or more rows, choose a field and value, then click Apply changes.
-          </p>
-        </div>
-      </div>
+      <h1 class="bu-header__title">Bulk Employee Update</h1>
+      <p class="bu-header__subtitle">
+        Select one or more employees, choose a field and new value, then click Apply changes.
+      </p>
     </div>
 
-    <!-- ── Selection action bar ──────────────────────────────────────────── -->
+    <!-- ── Selection action bar — slides in when rows are selected ───────────── -->
     <Transition name="bu-bar">
       <div v-if="hasSelection" class="bu-action-bar">
 
         <div class="bu-action-bar__left">
-          <!-- Checkmark badge -->
           <div class="bu-action-bar__badge">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <span class="bu-action-bar__count">
@@ -201,9 +202,9 @@ function statusFill(status: string): boolean {
             :options="fieldOptions"
             textField="text"
             valueField="value"
-            label=""
             placeholder="Select field..."
-            class="bu-action-bar__select"
+            label=""
+            class="bu-select"
           />
 
           <!-- Value selector — disabled until field is chosen -->
@@ -213,10 +214,10 @@ function statusFill(status: string): boolean {
             :options="valueOptions"
             textField="text"
             valueField="value"
-            label=""
             placeholder="New value..."
+            label=""
             :disabled="!updateField"
-            class="bu-action-bar__select"
+            class="bu-select"
           />
 
           <spr-button
@@ -232,7 +233,7 @@ function statusFill(status: string): boolean {
       </div>
     </Transition>
 
-    <!-- ── Employee table ────────────────────────────────────────────────── -->
+    <!-- ── Employee table ───────────────────────────────────────────────────── -->
     <div class="bu-table-wrap">
       <spr-table
         :headers="headers"
@@ -243,7 +244,7 @@ function statusFill(status: string): boolean {
         :tableActions="{ search: true, filter: false, option: false }"
         @update:selectedData="selectedData = $event"
       >
-        <!-- Status column — lozenge -->
+        <!-- Status column — lozenge per employment status -->
         <template #_status="{ row }">
           <spr-lozenge
             :label="(row._status as any).title"
@@ -254,15 +255,15 @@ function statusFill(status: string): boolean {
       </spr-table>
     </div>
 
-    <!-- ── Snackbar ───────────────────────────────────────────────────────── -->
-    <spr-snackbar ref="snackbarRef" />
+    <!-- ── Snackbar — must be mounted before trigger methods are called ───────── -->
+    <spr-snackbar ref="snackbar" />
 
   </div>
 </template>
 
 <style scoped>
 .bu-page {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 32px 80px;
   font-family: 'Rubik', sans-serif;
@@ -271,7 +272,7 @@ function statusFill(status: string): boolean {
   gap: 20px;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────────────── */
 .bu-header__eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -279,13 +280,6 @@ function statusFill(status: string): boolean {
   text-transform: uppercase;
   color: #158039;
   margin-bottom: 8px;
-}
-
-.bu-header__row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
 }
 
 .bu-header__title {
@@ -301,16 +295,16 @@ function statusFill(status: string): boolean {
   margin: 0;
 }
 
-/* ── Selection action bar ───────────────────────────────────────────────── */
+/* ── Action bar ──────────────────────────────────────────────────────────── */
 .bu-action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  padding: 14px 20px;
   background: #f0fdf4;
   border: 1.5px solid #86efac;
   border-radius: 8px;
-  padding: 14px 20px;
 }
 
 .bu-action-bar__left {
@@ -344,22 +338,23 @@ function statusFill(status: string): boolean {
   gap: 10px;
 }
 
-.bu-action-bar__select {
+.bu-select {
   width: 200px;
 }
 
-/* ── Transition ─────────────────────────────────────────────────────────── */
+/* ── Transition ──────────────────────────────────────────────────────────── */
 .bu-bar-enter-active,
 .bu-bar-leave-active {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
+
 .bu-bar-enter-from,
 .bu-bar-leave-to {
   opacity: 0;
   transform: translateY(-6px);
 }
 
-/* ── Table ──────────────────────────────────────────────────────────────── */
+/* ── Table ───────────────────────────────────────────────────────────────── */
 .bu-table-wrap {
   height: 600px;
   width: 100%;

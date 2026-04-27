@@ -1,88 +1,122 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Header } from 'design-system-next'
 
-// ─── Batch data ──────────────────────────────────────────────────────────────
-const allBatches = [
-  { id: 1,  batchName: { title: 'April 2026 — Regular'          }, payPeriod: { title: 'Apr 1–30, 2026'   }, employees: { title: '142'         }, totalNetPay: { title: '₱ 4,218,500.00' }, status: { title: 'Completed'          }, runDate: { title: 'Apr 5, 2026'  } },
-  { id: 2,  batchName: { title: 'April 2026 — Probationary'     }, payPeriod: { title: 'Apr 1–30, 2026'   }, employees: { title: '23'          }, totalNetPay: { title: '₱ 412,300.00'   }, status: { title: 'Processing'        }, runDate: { title: 'Apr 8, 2026'  } },
-  { id: 3,  batchName: { title: 'April 2026 — Contractual'      }, payPeriod: { title: 'Apr 1–30, 2026'   }, employees: { title: '8'           }, totalNetPay: { title: '₱ 96,000.00'    }, status: { title: 'Pending Approval'  }, runDate: { title: 'Apr 8, 2026'  } },
-  { id: 4,  batchName: { title: 'March 2026 — Regular'          }, payPeriod: { title: 'Mar 1–31, 2026'   }, employees: { title: '139'         }, totalNetPay: { title: '₱ 4,105,750.00' }, status: { title: 'Completed'          }, runDate: { title: 'Mar 5, 2026'  } },
-  { id: 5,  batchName: { title: 'March 2026 — Probationary'     }, payPeriod: { title: 'Mar 1–31, 2026'   }, employees: { title: '19'          }, totalNetPay: { title: '₱ 342,000.00'   }, status: { title: 'Completed'          }, runDate: { title: 'Mar 5, 2026'  } },
-  { id: 6,  batchName: { title: 'March 2026 — Contractual'      }, payPeriod: { title: 'Mar 1–31, 2026'   }, employees: { title: '5'           }, totalNetPay: { title: '₱ 60,000.00'    }, status: { title: 'Failed'             }, runDate: { title: 'Mar 6, 2026'  } },
-  { id: 7,  batchName: { title: 'February 2026 — Regular'       }, payPeriod: { title: 'Feb 1–28, 2026'   }, employees: { title: '138'         }, totalNetPay: { title: '₱ 4,088,200.00' }, status: { title: 'Completed'          }, runDate: { title: 'Feb 5, 2026'  } },
-  { id: 8,  batchName: { title: 'February 2026 — Probationary'  }, payPeriod: { title: 'Feb 1–28, 2026'   }, employees: { title: '21'          }, totalNetPay: { title: '₱ 378,000.00'   }, status: { title: 'Completed'          }, runDate: { title: 'Feb 5, 2026'  } },
-  { id: 9,  batchName: { title: 'April 2026 — 13th Month Draft' }, payPeriod: { title: 'Apr 1–30, 2026'   }, employees: { title: '165'         }, totalNetPay: { title: '—'              }, status: { title: 'Draft'              }, runDate: { title: '—'            } },
-  { id: 10, batchName: { title: 'January 2026 — Regular'        }, payPeriod: { title: 'Jan 1–31, 2026'   }, employees: { title: '135'         }, totalNetPay: { title: '₱ 3,996,500.00' }, status: { title: 'Completed'          }, runDate: { title: 'Jan 5, 2026'  } },
-]
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface PayrollBatch {
+  id:          number
+  name:        string
+  period:      string
+  employees:   number
+  amount:      number
+  runDate:     string
+  status:      string
+  _name:       { title: string }
+  _period:     { title: string }
+  _employees:  { title: string }
+  _amount:     { title: string }
+  _runDate:    { title: string }
+  _status:     { title: string }
+}
 
-// ─── Headers ─────────────────────────────────────────────────────────────────
+function batch(
+  id: number, name: string, period: string,
+  employees: number, amount: number, runDate: string, status: string
+): PayrollBatch {
+  return {
+    id, name, period, employees, amount, runDate, status,
+    _name:      { title: name },
+    _period:    { title: period },
+    _employees: { title: `${employees} employees` },
+    _amount:    { title: `₱${amount.toLocaleString()}` },
+    _runDate:   { title: runDate },
+    _status:    { title: status },
+  }
+}
+
+// ─── Payroll batch seed data ──────────────────────────────────────────────────
+const allBatches = ref<PayrollBatch[]>([
+  batch(1, 'Regular Payroll',       'Jan 2026', 142, 3_240_500, 'Jan 15, 2026', 'Completed'),
+  batch(2, 'Regular Payroll',       'Feb 2026', 144, 3_290_000, 'Feb 15, 2026', 'Completed'),
+  batch(3, 'Regular Payroll',       'Mar 2026', 144, 3_310_800, 'Mar 15, 2026', 'Completed'),
+  batch(4, '13th Month Pay',        'Mar 2026', 138, 8_450_000, 'Mar 31, 2026', 'Completed'),
+  batch(5, 'Off-cycle Adjustment',  'Mar 2026',   3,    24_600, 'Mar 20, 2026', 'Failed'),
+  batch(6, 'Regular Payroll',       'Apr 2026', 145, 3_315_200, 'Apr 15, 2026', 'Completed'),
+  batch(7, 'Regular Payroll',       'Apr 2026', 145, 3_315_200, 'Apr 30, 2026', 'Processing'),
+  batch(8, 'Supplemental Payroll',  'Apr 2026',  12,   180_400, 'Apr 30, 2026', 'Pending'),
+])
+
+// ─── Demo: simulate zero-data empty state ─────────────────────────────────────
+const simulateEmpty = ref(false)
+const visibleBatches = computed(() => simulateEmpty.value ? [] : allBatches.value)
+
+// ─── Table headers ────────────────────────────────────────────────────────────
 const headers = ref<Header[]>([
-  { field: 'batchName',   name: 'Batch Name',        sort: true  },
-  { field: 'payPeriod',   name: 'Pay Period',         sort: true  },
-  { field: 'employees',   name: 'Employees',          sort: false },
-  { field: 'totalNetPay', name: 'Total Net Pay',      sort: false },
-  { field: 'status',      name: 'Status'                          },
-  { field: 'runDate',     name: 'Run Date',           sort: true  },
+  { field: '_name',      name: 'Batch Name',      sort: true  },
+  { field: '_period',    name: 'Pay Period',       sort: true  },
+  { field: '_employees', name: 'Employees',        sort: false },
+  { field: '_amount',    name: 'Total Amount',     sort: false },
+  { field: '_runDate',   name: 'Run Date',         sort: true  },
+  { field: '_status',    name: 'Status'                        },
 ])
 
 // ─── Filter state ─────────────────────────────────────────────────────────────
-const statusFilter    = ref('')
-const periodFilter    = ref('')
-const searchQuery     = ref('')
+const statusFilter = ref('')
+const periodFilter = ref('')
 
-const statusOptions = [
-  { text: 'All Statuses',      value: '' },
-  { text: 'Draft',             value: 'Draft' },
-  { text: 'Pending Approval',  value: 'Pending Approval' },
-  { text: 'Processing',        value: 'Processing' },
-  { text: 'Completed',         value: 'Completed' },
-  { text: 'Failed',            value: 'Failed' },
-]
+const statusOptions = ['Completed', 'Processing', 'Pending', 'Failed']
+const periodOptions = ['Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026']
 
-const periodOptions = [
-  { text: 'All Periods',       value: '' },
-  { text: 'April 2026',        value: 'Apr' },
-  { text: 'March 2026',        value: 'Mar' },
-  { text: 'February 2026',     value: 'Feb' },
-  { text: 'January 2026',      value: 'Jan' },
-]
+// Reset to page 1 when filters change
+watch([statusFilter, periodFilter], () => { currentPage.value = 1 })
+
+// ─── Filtered + paged data ────────────────────────────────────────────────────
+const filtered = computed(() => {
+  return visibleBatches.value.filter(b => {
+    const matchStatus = !statusFilter.value || b.status === statusFilter.value
+    const matchPeriod = !periodFilter.value || b.period === periodFilter.value
+    return matchStatus && matchPeriod
+  })
+})
+
+const hasActiveFilters = computed(() => !!statusFilter.value || !!periodFilter.value)
 
 function clearFilters() {
   statusFilter.value = ''
   periodFilter.value = ''
-  searchQuery.value  = ''
 }
 
-const hasActiveFilters = computed(() =>
-  !!statusFilter.value || !!periodFilter.value || !!searchQuery.value.trim()
-)
+// ─── Pagination ───────────────────────────────────────────────────────────────
+const rowCount    = ref(10)
+const currentPage = ref(1)
+const totalItems  = computed(() => filtered.value.length)
 
-// ─── Demo: toggle empty state ─────────────────────────────────────────────────
-const forceEmpty = ref(false)
+const dropdownOptions = [
+  { text: 10, value: 10 },
+  { text: 20, value: 20 },
+  { text: 50, value: 50 },
+]
 
-// ─── Filtered data ────────────────────────────────────────────────────────────
-const filteredBatches = computed(() => {
-  if (forceEmpty.value) return []
-
-  return allBatches.filter(b => {
-    const matchStatus = !statusFilter.value || b.status.title === statusFilter.value
-    const matchPeriod = !periodFilter.value || b.payPeriod.title.startsWith(periodFilter.value)
-    const q = searchQuery.value.trim().toLowerCase()
-    const matchSearch = !q || b.batchName.title.toLowerCase().includes(q)
-    return matchStatus && matchPeriod && matchSearch
-  })
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * rowCount.value
+  return filtered.value.slice(start, start + rowCount.value)
 })
 
-const hasNoBatches = computed(() => forceEmpty.value)
+// ─── Summary stats ────────────────────────────────────────────────────────────
+const stats = computed(() => ({
+  completed:  allBatches.value.filter(b => b.status === 'Completed').length,
+  processing: allBatches.value.filter(b => b.status === 'Processing').length,
+  pending:    allBatches.value.filter(b => b.status === 'Pending').length,
+  failed:     allBatches.value.filter(b => b.status === 'Failed').length,
+}))
 
-// ─── Status lozenge ───────────────────────────────────────────────────────────
+// ─── Status lozenge helpers ───────────────────────────────────────────────────
 function statusTone(status: string): string {
-  if (status === 'Completed')        return 'success'
-  if (status === 'Processing')       return 'information'
-  if (status === 'Pending Approval') return 'caution'
-  if (status === 'Failed')           return 'danger'
-  return 'neutral' // Draft
+  if (status === 'Completed')  return 'success'
+  if (status === 'Processing') return 'information'
+  if (status === 'Pending')    return 'caution'
+  if (status === 'Failed')     return 'danger'
+  return 'neutral'
 }
 
 function statusFill(status: string): boolean {
@@ -93,130 +127,152 @@ function statusFill(status: string): boolean {
 <template>
   <div class="pr-page">
 
-    <!-- ── Page header ───────────────────────────────────────────────────── -->
+    <!-- ── Page header ───────────────────────────────────────────────────────── -->
     <div class="pr-header">
       <div class="pr-header__eyebrow">Payroll</div>
       <div class="pr-header__row">
         <div>
-          <h1 class="pr-header__title">Payroll Runs</h1>
-          <p class="pr-header__subtitle">Track and manage payroll batch processing status.</p>
+          <h1 class="pr-header__title">Payroll Run Status</h1>
+          <p class="pr-header__subtitle">Monitor and review all payroll batch runs.</p>
         </div>
-        <div class="pr-header__actions">
-          <!-- Demo toggle: simulate no batches -->
-          <spr-button variant="secondary" @click="forceEmpty = !forceEmpty">
-            {{ forceEmpty ? 'Show batches' : 'Demo empty state' }}
-          </spr-button>
-          <spr-button variant="primary" tone="success" :disabled="forceEmpty">
-            New payroll run
-          </spr-button>
-        </div>
+        <!-- Demo toggle for empty state testing -->
+        <spr-button
+          variant="secondary"
+          size="small"
+          @click="simulateEmpty = !simulateEmpty"
+        >
+          {{ simulateEmpty ? 'Show batches' : 'Demo: empty state' }}
+        </spr-button>
       </div>
     </div>
 
-    <!-- ── Empty state — no batches exist ───────────────────────────────── -->
-    <div v-if="hasNoBatches" class="pr-empty-wrap">
+    <!-- ── Summary stat tiles ────────────────────────────────────────────────── -->
+    <div v-if="!simulateEmpty" class="pr-stats">
+      <div class="pr-stat pr-stat--completed">
+        <span class="pr-stat__count">{{ stats.completed }}</span>
+        <span class="pr-stat__label">Completed</span>
+      </div>
+      <div class="pr-stat pr-stat--processing">
+        <span class="pr-stat__count">{{ stats.processing }}</span>
+        <span class="pr-stat__label">Processing</span>
+      </div>
+      <div class="pr-stat pr-stat--pending">
+        <span class="pr-stat__count">{{ stats.pending }}</span>
+        <span class="pr-stat__label">Pending</span>
+      </div>
+      <div class="pr-stat pr-stat--failed">
+        <span class="pr-stat__count">{{ stats.failed }}</span>
+        <span class="pr-stat__label">Failed</span>
+      </div>
+    </div>
+
+    <!-- ── Zero-data empty state ─────────────────────────────────────────────── -->
+    <div v-if="simulateEmpty" class="pr-empty-wrap">
       <spr-empty-state
-        description="No payroll runs yet"
-        subDescription="Start your first payroll run to process employee salaries and generate payslips."
+        description="No payroll batches yet"
+        subDescription="Payroll runs will appear here once a batch has been initiated."
         image="dashboard"
         size="large"
       >
         <template #button>
-          <spr-button tone="success" @click="forceEmpty = false">
-            Create first payroll run
+          <spr-button variant="primary" tone="success">
+            Run payroll
           </spr-button>
         </template>
       </spr-empty-state>
     </div>
 
-    <!-- ── Filter bar + table ────────────────────────────────────────────── -->
+    <!-- ── Filter bar + table (shown when batches exist) ─────────────────────── -->
     <template v-else>
 
       <!-- Filter bar -->
       <div class="pr-filters">
-        <div class="pr-filters__inputs">
-          <!-- Search — spr-table built-in handles this via tableActions -->
-          <spr-input
-            id="payroll-search"
-            v-model="searchQuery"
-            placeholder="Search batch name..."
-            class="pr-filters__search"
-          />
-
-          <!-- Status filter — spr-select (spr-filter is always-open panel, wrong shape) -->
+        <div class="pr-filters__selects">
           <spr-select
             id="status-filter"
             v-model="statusFilter"
             :options="statusOptions"
-            textField="text"
-            valueField="value"
             label=""
-            placeholder="Status"
-            class="pr-filters__select"
+            placeholder="All statuses"
+            :clearable="true"
           />
-
-          <!-- Period filter -->
           <spr-select
             id="period-filter"
             v-model="periodFilter"
             :options="periodOptions"
-            textField="text"
-            valueField="value"
             label=""
-            placeholder="Pay period"
-            class="pr-filters__select"
+            placeholder="All periods"
+            :clearable="true"
           />
         </div>
 
-        <!-- Active filter chips + clear -->
-        <div v-if="hasActiveFilters" class="pr-filters__active">
-          <span class="pr-filters__active-label">Filtered:</span>
-          <span v-if="statusFilter" class="pr-filters__chip">{{ statusFilter }}</span>
-          <span v-if="periodFilter" class="pr-filters__chip">{{ periodOptions.find(o => o.value === periodFilter)?.text }}</span>
-          <span v-if="searchQuery.trim()" class="pr-filters__chip">"{{ searchQuery.trim() }}"</span>
-          <button class="pr-filters__clear" @click="clearFilters">Clear all</button>
+        <div class="pr-filters__right">
+          <!-- Result count -->
+          <span class="pr-filters__count">
+            {{ totalItems }} batch{{ totalItems !== 1 ? 'es' : '' }}
+          </span>
+          <!-- Clear filters — only shown when a filter is active -->
+          <spr-button
+            v-if="hasActiveFilters"
+            variant="tertiary"
+            size="small"
+            @click="clearFilters"
+          >
+            Clear filters
+          </spr-button>
         </div>
       </div>
 
-      <!-- Table — height wrapper required -->
+      <!-- Payroll batch table -->
       <div class="pr-table-wrap">
         <spr-table
           :headers="headers"
-          :dataTable="filteredBatches"
+          :dataTable="pagedData"
           :emptyState="{
-            description: 'No matching payroll runs',
-            subDescription: 'Try adjusting your filters or search term.',
+            description: 'No batches match your filters',
+            subDescription: 'Try a different status or pay period.',
             image: 'list',
             size: 'large',
           }"
         >
-          <!-- Status column — lozenge -->
-          <template #status="{ row }">
+          <!-- Status column — lozenge per batch state -->
+          <template #_status="{ row }">
             <spr-lozenge
-              :label="(row.status as any).title"
-              :tone="statusTone((row.status as any).title)"
-              :fill="statusFill((row.status as any).title)"
+              :label="(row._status as any).title"
+              :tone="statusTone((row._status as any).title)"
+              :fill="statusFill((row._status as any).title)"
+            />
+          </template>
+
+          <!-- Pagination in footer slot -->
+          <template #footer>
+            <spr-table-pagination
+              v-model:selectedRowCount="rowCount"
+              v-model:currentPage="currentPage"
+              :totalItems="totalItems"
+              :dropdownSelection="dropdownOptions"
             />
           </template>
         </spr-table>
       </div>
 
     </template>
+
   </div>
 </template>
 
 <style scoped>
 .pr-page {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 32px 80px;
   font-family: 'Rubik', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────────────── */
 .pr-header__eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -246,89 +302,89 @@ function statusFill(status: string): boolean {
   margin: 0;
 }
 
-.pr-header__actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-shrink: 0;
+/* ── Stat tiles ──────────────────────────────────────────────────────────── */
+.pr-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
-/* ── Empty state ────────────────────────────────────────────────────────── */
-.pr-empty-wrap {
-  background: #fff;
-  border: 1px solid #d9dede;
-  border-radius: 8px;
-  padding: 60px 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ── Filter bar ─────────────────────────────────────────────────────────── */
-.pr-filters {
+.pr-stat {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
-.pr-filters__inputs {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
+.pr-stat__count {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
 }
 
-.pr-filters__search {
-  flex: 1;
-  min-width: 0;
+.pr-stat__label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.pr-filters__select {
-  width: 180px;
-  flex-shrink: 0;
-}
+.pr-stat--completed  { background: #f0fdf4; border-color: #bbf7d0; }
+.pr-stat--completed  .pr-stat__count { color: #14532b; }
+.pr-stat--completed  .pr-stat__label { color: #16a34a; }
 
-/* Active filter chips */
-.pr-filters__active {
+.pr-stat--processing { background: #eff6ff; border-color: #bfdbfe; }
+.pr-stat--processing .pr-stat__count { color: #1e3a5f; }
+.pr-stat--processing .pr-stat__label { color: #2563eb; }
+
+.pr-stat--pending    { background: #fffbeb; border-color: #fde68a; }
+.pr-stat--pending    .pr-stat__count { color: #78350f; }
+.pr-stat--pending    .pr-stat__label { color: #d97706; }
+
+.pr-stat--failed     { background: #fef2f2; border-color: #fecaca; }
+.pr-stat--failed     .pr-stat__count { color: #7f1d1d; }
+.pr-stat--failed     .pr-stat__label { color: #dc2626; }
+
+/* ── Filter bar ──────────────────────────────────────────────────────────── */
+.pr-filters {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.pr-filters__active-label {
-  font-size: 12px;
+.pr-filters__selects {
+  display: flex;
+  gap: 12px;
+}
+
+.pr-filters__selects > * {
+  width: 180px;
+}
+
+.pr-filters__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pr-filters__count {
+  font-size: 13px;
   color: #5d6c6b;
-  font-weight: 500;
 }
 
-.pr-filters__chip {
-  font-size: 12px;
-  background: #dcfce6; /* kangkong-100 */
-  color: #14532b;      /* kangkong-900 */
-  border-radius: 100px;
-  padding: 2px 10px;
-  font-weight: 500;
-}
-
-.pr-filters__clear {
-  font-size: 12px;
-  color: #da2f38;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font-family: inherit;
-  font-weight: 500;
-  text-decoration: underline;
-}
-
-.pr-filters__clear:hover {
-  color: #b61f27;
-}
-
-/* ── Table ──────────────────────────────────────────────────────────────── */
+/* ── Table ───────────────────────────────────────────────────────────────── */
 .pr-table-wrap {
-  height: 580px;
+  height: 520px;
   width: 100%;
+}
+
+/* ── Empty state wrapper ─────────────────────────────────────────────────── */
+.pr-empty-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
 }
 </style>

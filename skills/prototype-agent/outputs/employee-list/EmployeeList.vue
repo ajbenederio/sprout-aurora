@@ -2,120 +2,165 @@
 import { ref, computed, watch } from 'vue'
 import type { Header } from 'design-system-next'
 
-// ─── Headers ───────────────────────────────────────────────────────────────
-const headers = ref<Header[]>([
-  { field: 'name',       name: 'Employee',          sort: true },
-  { field: 'department', name: 'Department',         sort: true },
-  { field: 'position',   name: 'Position',           sort: true },
-  { field: 'status',     name: 'Employment Status' },
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Employee {
+  id:          number
+  name:        string
+  department:  string
+  position:    string
+  status:      string
+  _name:       { title: string }
+  _department: { title: string }
+  _position:   { title: string }
+  _status:     { title: string }
+}
+
+function emp(
+  id: number, name: string, dept: string, position: string, status: string
+): Employee {
+  return {
+    id, name, department: dept, position, status,
+    _name:       { title: name     },
+    _department: { title: dept     },
+    _position:   { title: position },
+    _status:     { title: status   },
+  }
+}
+
+// ─── Employee seed data ───────────────────────────────────────────────────────
+const allEmployees = ref<Employee[]>([
+  emp(1,  'Maria Santos',      'Engineering',     'Frontend Developer',      'Active'),
+  emp(2,  'Jose Reyes',        'Human Resources', 'HR Specialist',           'Active'),
+  emp(3,  'Ana Cruz',          'Finance',         'Accountant',              'On Probation'),
+  emp(4,  'Carlos Dela Rosa',  'Engineering',     'Backend Developer',       'Active'),
+  emp(5,  'Liza Mendoza',      'Marketing',       'Marketing Manager',       'Active'),
+  emp(6,  'Ramon Villanueva',  'Operations',      'Operations Analyst',      'On Probation'),
+  emp(7,  'Grace Tan',         'Finance',         'Finance Manager',         'Active'),
+  emp(8,  'Michael Lim',       'Engineering',     'DevOps Engineer',         'Active'),
+  emp(9,  'Patricia Ocampo',   'Human Resources', 'Recruitment Specialist',  'On Leave'),
+  emp(10, 'Rowena Castillo',   'Operations',      'Project Manager',         'Active'),
+  emp(11, 'Eduardo Manalo',    'Sales',           'Account Manager',         'Active'),
+  emp(12, 'Jennifer Ramos',    'Finance',         'Payroll Specialist',      'Active'),
+  emp(13, 'Rico Bautista',     'Sales',           'Sales Executive',         'On Probation'),
+  emp(14, 'Theresa Gomez',     'Marketing',       'Brand Strategist',        'Active'),
+  emp(15, 'Daniel Torres',     'Engineering',     'QA Engineer',             'Inactive'),
+  emp(16, 'Sophia Navarro',    'Human Resources', 'HR Manager',              'Active'),
+  emp(17, 'Mark Aquino',       'Engineering',     'Tech Lead',               'Active'),
+  emp(18, 'Cristina Flores',   'Finance',         'Budget Analyst',          'On Leave'),
+  emp(19, 'Bernard Santos',    'Operations',      'Supply Chain Analyst',    'Active'),
+  emp(20, 'Janelle Cruz',      'Marketing',       'Content Strategist',      'Active'),
 ])
 
-// ─── Seed data (20 employees) ───────────────────────────────────────────────
-const allEmployees = [
-  { id:  1, name: { title: 'Maria Santos'    }, department: { title: 'Engineering'    }, position: { title: 'Frontend Developer'     }, status: { title: 'Active'        } },
-  { id:  2, name: { title: 'Jose Reyes'      }, department: { title: 'Human Resources'}, position: { title: 'HR Specialist'          }, status: { title: 'Active'        } },
-  { id:  3, name: { title: 'Ana Cruz'        }, department: { title: 'Finance'        }, position: { title: 'Accountant'             }, status: { title: 'On Leave'      } },
-  { id:  4, name: { title: 'Carlos Dela Rosa'}, department: { title: 'Engineering'    }, position: { title: 'Backend Developer'      }, status: { title: 'Active'        } },
-  { id:  5, name: { title: 'Liza Mendoza'    }, department: { title: 'Marketing'      }, position: { title: 'Marketing Manager'      }, status: { title: 'Active'        } },
-  { id:  6, name: { title: 'Ramon Villanueva'}, department: { title: 'Operations'     }, position: { title: 'Operations Analyst'     }, status: { title: 'Probationary'  } },
-  { id:  7, name: { title: 'Grace Tan'       }, department: { title: 'Finance'        }, position: { title: 'Finance Manager'        }, status: { title: 'Active'        } },
-  { id:  8, name: { title: 'Michael Lim'     }, department: { title: 'Engineering'    }, position: { title: 'DevOps Engineer'        }, status: { title: 'Active'        } },
-  { id:  9, name: { title: 'Patricia Ocampo' }, department: { title: 'Human Resources'}, position: { title: 'Recruitment Specialist' }, status: { title: 'Active'        } },
-  { id: 10, name: { title: 'Angelo Bautista' }, department: { title: 'Sales'          }, position: { title: 'Sales Executive'        }, status: { title: 'Inactive'      } },
-  { id: 11, name: { title: 'Marisol Aquino'  }, department: { title: 'Marketing'      }, position: { title: 'Content Strategist'     }, status: { title: 'Active'        } },
-  { id: 12, name: { title: 'Dennis Flores'   }, department: { title: 'Engineering'    }, position: { title: 'QA Engineer'            }, status: { title: 'Probationary'  } },
-  { id: 13, name: { title: 'Rowena Castillo' }, department: { title: 'Operations'     }, position: { title: 'Project Manager'        }, status: { title: 'Active'        } },
-  { id: 14, name: { title: 'Eduardo Manalo'  }, department: { title: 'Sales'          }, position: { title: 'Account Manager'        }, status: { title: 'Active'        } },
-  { id: 15, name: { title: 'Jennifer Ramos'  }, department: { title: 'Finance'        }, position: { title: 'Payroll Specialist'      }, status: { title: 'On Leave'      } },
-  { id: 16, name: { title: 'Nestor Domingo'  }, department: { title: 'Engineering'    }, position: { title: 'Solutions Architect'     }, status: { title: 'Active'        } },
-  { id: 17, name: { title: 'Cristina Palma'  }, department: { title: 'Human Resources'}, position: { title: 'HR Manager'             }, status: { title: 'Active'        } },
-  { id: 18, name: { title: 'Vincent Soriano' }, department: { title: 'Marketing'      }, position: { title: 'Brand Designer'         }, status: { title: 'Probationary'  } },
-  { id: 19, name: { title: 'Teresita Navarro'}, department: { title: 'Operations'     }, position: { title: 'Admin Assistant'        }, status: { title: 'Inactive'      } },
-  { id: 20, name: { title: 'Ronald Mercado'  }, department: { title: 'Sales'          }, position: { title: 'Sales Manager'          }, status: { title: 'Active'        } },
-]
+// ─── Table headers ────────────────────────────────────────────────────────────
+const headers = ref<Header[]>([
+  { field: '_name',       name: 'Name',              sort: true  },
+  { field: '_department', name: 'Department',         sort: true  },
+  { field: '_position',   name: 'Position',           sort: false },
+  { field: '_status',     name: 'Employment Status'               },
+])
 
-// ─── Search ─────────────────────────────────────────────────────────────────
-const searchQuery = ref('')
+// ─── Search ───────────────────────────────────────────────────────────────────
+const search = ref('')
 
-// Reset to page 1 when search changes
-watch(searchQuery, () => { currentPage.value = 1 })
-
-const filteredEmployees = computed(() => {
-  const q = searchQuery.value.trim().toLowerCase()
-  if (!q) return allEmployees
-  return allEmployees.filter(e =>
-    e.name.title.toLowerCase().includes(q) ||
-    e.department.title.toLowerCase().includes(q) ||
-    e.position.title.toLowerCase().includes(q) ||
-    e.status.title.toLowerCase().includes(q)
-  )
-})
-
-// ─── Pagination ─────────────────────────────────────────────────────────────
+// ─── Pagination ───────────────────────────────────────────────────────────────
 const rowCount    = ref(10)
 const currentPage = ref(1)
 
-const totalItems = computed(() => filteredEmployees.value.length)
-
-const tableData = computed(() => {
-  const start = (currentPage.value - 1) * rowCount.value
-  return filteredEmployees.value.slice(start, start + rowCount.value)
-})
-
-const dropdownSelection = [
+const dropdownOptions = [
   { text: 10, value: 10 },
   { text: 20, value: 20 },
   { text: 50, value: 50 },
 ]
 
-// ─── Status lozenge tone ────────────────────────────────────────────────────
+// Reset to page 1 whenever the search query changes
+watch(search, () => { currentPage.value = 1 })
+
+// ─── Computed: filtered + paged data ─────────────────────────────────────────
+const filtered = computed(() => {
+  const q = search.value.toLowerCase().trim()
+  if (!q) return allEmployees.value
+  return allEmployees.value.filter(e =>
+    e.name.toLowerCase().includes(q)       ||
+    e.department.toLowerCase().includes(q) ||
+    e.position.toLowerCase().includes(q)
+  )
+})
+
+const totalItems = computed(() => filtered.value.length)
+
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * rowCount.value
+  return filtered.value.slice(start, start + rowCount.value)
+})
+
+// ─── Status lozenge helpers ───────────────────────────────────────────────────
 function statusTone(status: string): string {
   if (status === 'Active')       return 'success'
-  if (status === 'On Leave')     return 'caution'
-  if (status === 'Probationary') return 'information'
-  return 'neutral' // Inactive
+  if (status === 'On Probation') return 'caution'
+  if (status === 'On Leave')     return 'information'
+  if (status === 'Inactive')     return 'neutral'
+  return 'neutral'
+}
+
+function statusFill(status: string): boolean {
+  return status === 'Active'
 }
 </script>
 
 <template>
-  <div class="employee-list">
+  <div class="el-page">
 
-    <!-- Page header -->
+    <!-- ── Page header ──────────────────────────────────────────────────────── -->
     <div class="el-header">
-      <h1 class="el-header__title">Employees</h1>
-      <p class="el-header__subtitle">{{ totalItems }} employee{{ totalItems !== 1 ? 's' : '' }} found</p>
+      <div class="el-header__eyebrow">People</div>
+      <div class="el-header__row">
+        <div>
+          <h1 class="el-header__title">Employee List</h1>
+          <p class="el-header__subtitle">
+            {{ totalItems }} employee{{ totalItems !== 1 ? 's' : '' }}
+            {{ search ? 'matching your search' : 'total' }}
+          </p>
+        </div>
+
+        <!-- Search input — sits above the table for fast employee lookup -->
+        <div class="el-search">
+          <spr-input
+            id="employee-search"
+            v-model="search"
+            placeholder="Search by name, department, or position..."
+          />
+        </div>
+      </div>
     </div>
 
-    <!-- Table — height wrapper is required or tbody collapses to 0 -->
+    <!-- ── Employee table ───────────────────────────────────────────────────── -->
     <div class="el-table-wrap">
       <spr-table
         :headers="headers"
-        :dataTable="tableData"
-        :tableActions="{ search: true, filter: false, option: false }"
-        v-model:searchModel="searchQuery"
+        :dataTable="pagedData"
         :emptyState="{
           description: 'No employees found',
-          subDescription: 'Try a different search term',
+          subDescription: 'Try a different name, department, or position.',
           image: 'location',
           size: 'large',
         }"
       >
-        <!-- Custom status cell — spr-lozenge with tone by status value -->
-        <template #status="{ row }">
+        <!-- Employment status — lozenge renders tone by status value -->
+        <template #_status="{ row }">
           <spr-lozenge
-            :label="(row.status as any).title"
-            :tone="statusTone((row.status as any).title)"
-            :fill="(row.status as any).title === 'Active'"
+            :label="(row._status as any).title"
+            :tone="statusTone((row._status as any).title)"
+            :fill="statusFill((row._status as any).title)"
           />
         </template>
 
-        <!-- Pagination in #footer slot — required placement -->
+        <!-- Pagination in footer slot -->
         <template #footer>
           <spr-table-pagination
             v-model:selectedRowCount="rowCount"
             v-model:currentPage="currentPage"
             :totalItems="totalItems"
-            :dropdownSelection="dropdownSelection"
+            :dropdownSelection="dropdownOptions"
           />
         </template>
       </spr-table>
@@ -125,19 +170,35 @@ function statusTone(status: string): string {
 </template>
 
 <style scoped>
-.employee-list {
-  max-width: 1100px;
+.el-page {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 32px 80px;
   font-family: 'Rubik', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.el-header {
-  margin-bottom: 24px;
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.el-header__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #158039;
+  margin-bottom: 8px;
+}
+
+.el-header__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .el-header__title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   color: #00291b;
   margin: 0 0 4px;
@@ -145,11 +206,17 @@ function statusTone(status: string): string {
 
 .el-header__subtitle {
   font-size: 14px;
-  color: #5d6c6b; /* mushroom-600 */
+  color: #5d6c6b;
   margin: 0;
 }
 
-/* Height wrapper — required for spr-table to render rows */
+/* ── Search ──────────────────────────────────────────────────────────────── */
+.el-search {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
 .el-table-wrap {
   height: 600px;
   width: 100%;
