@@ -1,102 +1,139 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Header } from 'design-system-next'
 
-// ─── Remittance records ───────────────────────────────────────────────────────
-const allRecords = [
-  { id:  1, type: 'SSS',       period: 'January 2026',   periodKey: 'Jan', employeeShare: '₱ 800.00',    employerShare: '₱ 1,900.00',  total: '₱ 2,700.00',   dueDate: 'Jan 31, 2026', filedDate: 'Jan 28, 2026', referenceNo: 'SSS-2601-0081', status: 'Filed'      },
-  { id:  2, type: 'SSS',       period: 'February 2026',  periodKey: 'Feb', employeeShare: '₱ 800.00',    employerShare: '₱ 1,900.00',  total: '₱ 2,700.00',   dueDate: 'Feb 28, 2026', filedDate: 'Feb 25, 2026', referenceNo: 'SSS-2602-0094', status: 'Filed'      },
-  { id:  3, type: 'SSS',       period: 'March 2026',     periodKey: 'Mar', employeeShare: '₱ 800.00',    employerShare: '₱ 1,900.00',  total: '₱ 2,700.00',   dueDate: 'Mar 31, 2026', filedDate: 'Mar 27, 2026', referenceNo: 'SSS-2603-0112', status: 'Filed'      },
-  { id:  4, type: 'SSS',       period: 'April 2026',     periodKey: 'Apr', employeeShare: '₱ 800.00',    employerShare: '₱ 1,900.00',  total: '₱ 2,700.00',   dueDate: 'Apr 30, 2026', filedDate: '—',             referenceNo: '—',             status: 'Pending'    },
-  { id:  5, type: 'PhilHealth', period: 'January 2026',  periodKey: 'Jan', employeeShare: '₱ 550.00',    employerShare: '₱ 550.00',    total: '₱ 1,100.00',   dueDate: 'Jan 15, 2026', filedDate: 'Jan 12, 2026', referenceNo: 'PH-2601-0041',  status: 'Filed'      },
-  { id:  6, type: 'PhilHealth', period: 'February 2026', periodKey: 'Feb', employeeShare: '₱ 550.00',    employerShare: '₱ 550.00',    total: '₱ 1,100.00',   dueDate: 'Feb 15, 2026', filedDate: 'Feb 14, 2026', referenceNo: 'PH-2602-0058',  status: 'Filed'      },
-  { id:  7, type: 'PhilHealth', period: 'March 2026',    periodKey: 'Mar', employeeShare: '₱ 550.00',    employerShare: '₱ 550.00',    total: '₱ 1,100.00',   dueDate: 'Mar 15, 2026', filedDate: 'Mar 13, 2026', referenceNo: 'PH-2603-0072',  status: 'Filed'      },
-  { id:  8, type: 'PhilHealth', period: 'April 2026',    periodKey: 'Apr', employeeShare: '₱ 550.00',    employerShare: '₱ 550.00',    total: '₱ 1,100.00',   dueDate: 'Apr 15, 2026', filedDate: '—',             referenceNo: '—',             status: 'Processing' },
-  { id:  9, type: 'Pag-IBIG',  period: 'January 2026',   periodKey: 'Jan', employeeShare: '₱ 200.00',    employerShare: '₱ 200.00',    total: '₱ 400.00',     dueDate: 'Jan 15, 2026', filedDate: 'Jan 14, 2026', referenceNo: 'HDMF-2601-033', status: 'Filed'      },
-  { id: 10, type: 'Pag-IBIG',  period: 'February 2026',  periodKey: 'Feb', employeeShare: '₱ 200.00',    employerShare: '₱ 200.00',    total: '₱ 400.00',     dueDate: 'Feb 15, 2026', filedDate: 'Feb 12, 2026', referenceNo: 'HDMF-2602-044', status: 'Filed'      },
-  { id: 11, type: 'Pag-IBIG',  period: 'March 2026',     periodKey: 'Mar', employeeShare: '₱ 200.00',    employerShare: '₱ 200.00',    total: '₱ 400.00',     dueDate: 'Mar 15, 2026', filedDate: '—',             referenceNo: '—',             status: 'Overdue'    },
-  { id: 12, type: 'Pag-IBIG',  period: 'April 2026',     periodKey: 'Apr', employeeShare: '₱ 200.00',    employerShare: '₱ 200.00',    total: '₱ 400.00',     dueDate: 'Apr 15, 2026', filedDate: '—',             referenceNo: '—',             status: 'Pending'    },
-  { id: 13, type: 'BIR',       period: 'January 2026',   periodKey: 'Jan', employeeShare: '₱ 3,200.00',  employerShare: '—',            total: '₱ 3,200.00',   dueDate: 'Jan 20, 2026', filedDate: 'Jan 17, 2026', referenceNo: 'BIR-2601-1780', status: 'Filed'      },
-  { id: 14, type: 'BIR',       period: 'February 2026',  periodKey: 'Feb', employeeShare: '₱ 3,450.00',  employerShare: '—',            total: '₱ 3,450.00',   dueDate: 'Feb 20, 2026', filedDate: 'Feb 18, 2026', referenceNo: 'BIR-2602-1823', status: 'Filed'      },
-  { id: 15, type: 'BIR',       period: 'March 2026',     periodKey: 'Mar', employeeShare: '₱ 3,180.00',  employerShare: '—',            total: '₱ 3,180.00',   dueDate: 'Mar 20, 2026', filedDate: '—',             referenceNo: '—',             status: 'Overdue'    },
-  { id: 16, type: 'BIR',       period: 'April 2026',     periodKey: 'Apr', employeeShare: '₱ 3,320.00',  employerShare: '—',            total: '₱ 3,320.00',   dueDate: 'Apr 20, 2026', filedDate: '—',             referenceNo: '—',             status: 'Pending'    },
-]
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface RemittanceRecord {
+  id:            number
+  agency:        string
+  period:        string
+  employeeShare: number
+  employerShare: number
+  total:         number
+  dueDate:       string
+  status:        string
+  // { title } shapes for spr-table
+  _agency:        { title: string }
+  _period:        { title: string }
+  _employeeShare: { title: string }
+  _employerShare: { title: string }
+  _total:         { title: string }
+  _dueDate:       { title: string }
+  _status:        { title: string }
+}
+
+function peso(n: number): string {
+  return n > 0 ? `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2 })}` : '—'
+}
+
+function rec(
+  id: number, agency: string, period: string,
+  empShare: number, erShare: number, dueDate: string, status: string
+): RemittanceRecord {
+  const total = empShare + erShare
+  return {
+    id, agency, period,
+    employeeShare: empShare, employerShare: erShare, total,
+    dueDate, status,
+    _agency:        { title: agency },
+    _period:        { title: period },
+    _employeeShare: { title: peso(empShare) },
+    _employerShare: { title: peso(erShare)  },
+    _total:         { title: peso(total)    },
+    _dueDate:       { title: dueDate        },
+    _status:        { title: status         },
+  }
+}
+
+// ─── Seed data: 4 agencies × 4 periods ───────────────────────────────────────
+// SSS: employee + employer share
+// PhilHealth: equal split
+// Pag-IBIG: equal split; Mar overdue to demonstrate danger state
+// BIR (1601-C withholding tax): employer-side only, no employee share
+const allRecords = ref<RemittanceRecord[]>([
+  rec(1,  'SSS',       'Jan 2026', 81_382,  169_218, 'Jan 31, 2026', 'Filed'),
+  rec(2,  'SSS',       'Feb 2026', 81_382,  169_218, 'Feb 28, 2026', 'Filed'),
+  rec(3,  'SSS',       'Mar 2026', 81_382,  169_218, 'Mar 31, 2026', 'Filed'),
+  rec(4,  'SSS',       'Apr 2026', 82_040,  170_460, 'Apr 30, 2026', 'Processing'),
+  rec(5,  'PhilHealth','Jan 2026', 70_000,   70_000, 'Jan 20, 2026', 'Filed'),
+  rec(6,  'PhilHealth','Feb 2026', 70_000,   70_000, 'Feb 20, 2026', 'Filed'),
+  rec(7,  'PhilHealth','Mar 2026', 70_000,   70_000, 'Mar 20, 2026', 'Filed'),
+  rec(8,  'PhilHealth','Apr 2026', 72_500,   72_500, 'Apr 20, 2026', 'Pending'),
+  rec(9,  'Pag-IBIG',  'Jan 2026', 14_000,   14_000, 'Jan 15, 2026', 'Filed'),
+  rec(10, 'Pag-IBIG',  'Feb 2026', 14_000,   14_000, 'Feb 15, 2026', 'Filed'),
+  rec(11, 'Pag-IBIG',  'Mar 2026', 14_000,   14_000, 'Mar 15, 2026', 'Overdue'),
+  rec(12, 'Pag-IBIG',  'Apr 2026', 14_500,   14_500, 'Apr 15, 2026', 'Pending'),
+  rec(13, 'BIR',       'Jan 2026',      0,  185_400, 'Jan 10, 2026', 'Filed'),
+  rec(14, 'BIR',       'Feb 2026',      0,  192_800, 'Feb 10, 2026', 'Filed'),
+  rec(15, 'BIR',       'Mar 2026',      0,  198_500, 'Mar 10, 2026', 'Filed'),
+  rec(16, 'BIR',       'Apr 2026',      0,  204_100, 'Apr 10, 2026', 'Pending'),
+])
 
 // ─── Table headers ────────────────────────────────────────────────────────────
 const headers = ref<Header[]>([
-  { field: 'type',          name: 'Contribution Type', sort: true  },
-  { field: 'period',        name: 'Period',            sort: true  },
-  { field: 'employeeShare', name: 'Employee Share',    sort: false },
-  { field: 'employerShare', name: 'Employer Share',    sort: false },
-  { field: 'total',         name: 'Total',             sort: false },
-  { field: 'dueDate',       name: 'Due Date',          sort: true  },
-  { field: 'filedDate',     name: 'Filed Date',        sort: false },
-  { field: 'status',        name: 'Status'                         },
+  { field: '_agency',        name: 'Agency',          sort: true  },
+  { field: '_period',        name: 'Period',           sort: true  },
+  { field: '_employeeShare', name: 'Employee Share',   sort: false },
+  { field: '_employerShare', name: 'Employer Share',   sort: false },
+  { field: '_total',         name: 'Total',            sort: false },
+  { field: '_dueDate',       name: 'Due Date',         sort: false },
+  { field: '_status',        name: 'Status'                        },
 ])
 
-// ─── Table data — cells must be { title } objects ─────────────────────────────
-const tableData = computed(() =>
-  filteredRecords.value.map(r => ({
-    id:            r.id,
-    type:          { title: r.type          },
-    period:        { title: r.period        },
-    employeeShare: { title: r.employeeShare },
-    employerShare: { title: r.employerShare },
-    total:         { title: r.total         },
-    dueDate:       { title: r.dueDate       },
-    filedDate:     { title: r.filedDate     },
-    status:        { title: r.status        },
-    // keep raw fields for slot rendering
-    _type:   r.type,
-    _status: r.status,
-  }))
-)
-
 // ─── Filter state ─────────────────────────────────────────────────────────────
-const typeFilter   = ref('')
+const agencyFilter = ref('')
 const periodFilter = ref('')
 
-const typeOptions = [
-  { text: 'All Types',   value: ''          },
-  { text: 'SSS',         value: 'SSS'       },
-  { text: 'PhilHealth',  value: 'PhilHealth'},
-  { text: 'Pag-IBIG',   value: 'Pag-IBIG'  },
-  { text: 'BIR',         value: 'BIR'       },
-]
+const agencyOptions = ['SSS', 'PhilHealth', 'Pag-IBIG', 'BIR']
+const periodOptions = ['Jan 2026', 'Feb 2026', 'Mar 2026', 'Apr 2026']
 
-const periodOptions = [
-  { text: 'All Periods',    value: ''    },
-  { text: 'April 2026',     value: 'Apr' },
-  { text: 'March 2026',     value: 'Mar' },
-  { text: 'February 2026',  value: 'Feb' },
-  { text: 'January 2026',   value: 'Jan' },
-]
+const hasActiveFilters = computed(() => !!agencyFilter.value || !!periodFilter.value)
 
 function clearFilters() {
-  typeFilter.value   = ''
+  agencyFilter.value = ''
   periodFilter.value = ''
 }
 
-const hasActiveFilters = computed(() => !!typeFilter.value || !!periodFilter.value)
+// Reset page on filter change
+watch([agencyFilter, periodFilter], () => { currentPage.value = 1 })
 
-// ─── Filtered records ─────────────────────────────────────────────────────────
-const filteredRecords = computed(() =>
-  allRecords.filter(r => {
-    const matchType   = !typeFilter.value   || r.type      === typeFilter.value
-    const matchPeriod = !periodFilter.value || r.periodKey === periodFilter.value
-    return matchType && matchPeriod
+// ─── Filtered + paged data ────────────────────────────────────────────────────
+const filtered = computed(() =>
+  allRecords.value.filter(r => {
+    const matchAgency = !agencyFilter.value || r.agency  === agencyFilter.value
+    const matchPeriod = !periodFilter.value || r.period  === periodFilter.value
+    return matchAgency && matchPeriod
   })
 )
 
-// ─── Status summary counts ────────────────────────────────────────────────────
-const summary = computed(() => ({
-  filed:      allRecords.filter(r => r.status === 'Filed').length,
-  pending:    allRecords.filter(r => r.status === 'Pending').length,
-  overdue:    allRecords.filter(r => r.status === 'Overdue').length,
-  processing: allRecords.filter(r => r.status === 'Processing').length,
-}))
+const totalItems = computed(() => filtered.value.length)
 
-// ─── Lozenge helpers ──────────────────────────────────────────────────────────
+// ─── Pagination ───────────────────────────────────────────────────────────────
+const rowCount    = ref(10)
+const currentPage = ref(1)
+
+const dropdownOptions = [
+  { text: 10, value: 10 },
+  { text: 20, value: 20 },
+  { text: 50, value: 50 },
+]
+
+const pagedData = computed(() => {
+  const start = (currentPage.value - 1) * rowCount.value
+  return filtered.value.slice(start, start + rowCount.value)
+})
+
+// ─── Overdue alert — show when filtered view contains overdue items ────────────
+const hasOverdue = computed(() => filtered.value.some(r => r.status === 'Overdue'))
+
+// ─── Summary: total filed amount in current filtered set ─────────────────────
+const filedTotal = computed(() =>
+  filtered.value
+    .filter(r => r.status === 'Filed')
+    .reduce((sum, r) => sum + r.total, 0)
+)
+
+// ─── Status lozenge helpers ───────────────────────────────────────────────────
 function statusTone(status: string): string {
   if (status === 'Filed')      return 'success'
   if (status === 'Processing') return 'information'
@@ -108,120 +145,99 @@ function statusTone(status: string): string {
 function statusFill(status: string): boolean {
   return status === 'Filed'
 }
-
-function typeTone(type: string): string {
-  if (type === 'SSS')        return 'information'
-  if (type === 'PhilHealth') return 'success'
-  if (type === 'Pag-IBIG')   return 'caution'
-  if (type === 'BIR')        return 'neutral'
-  return 'neutral'
-}
 </script>
 
 <template>
   <div class="gr-page">
 
-    <!-- ── Page header ───────────────────────────────────────────────────── -->
+    <!-- ── Page header ───────────────────────────────────────────────────────── -->
     <div class="gr-header">
-      <div class="gr-header__eyebrow">Payroll</div>
-      <div class="gr-header__row">
-        <div>
-          <h1 class="gr-header__title">Government Remittances</h1>
-          <p class="gr-header__subtitle">
-            Track SSS, PhilHealth, Pag-IBIG, and BIR contributions and filing status.
-          </p>
-        </div>
-        <spr-button variant="primary" tone="success">File remittance</spr-button>
-      </div>
+      <div class="gr-header__eyebrow">Payroll · Compliance</div>
+      <h1 class="gr-header__title">Government Remittances</h1>
+      <p class="gr-header__subtitle">
+        Track SSS, PhilHealth, Pag-IBIG, and BIR contribution filings by period.
+      </p>
     </div>
 
-    <!-- ── Summary tiles ─────────────────────────────────────────────────── -->
-    <div class="gr-summary">
-      <div class="gr-summary__tile">
-        <span class="gr-summary__count gr-summary__count--filed">{{ summary.filed }}</span>
-        <span class="gr-summary__label">Filed</span>
-      </div>
-      <div class="gr-summary__tile">
-        <span class="gr-summary__count gr-summary__count--processing">{{ summary.processing }}</span>
-        <span class="gr-summary__label">Processing</span>
-      </div>
-      <div class="gr-summary__tile">
-        <span class="gr-summary__count gr-summary__count--pending">{{ summary.pending }}</span>
-        <span class="gr-summary__label">Pending</span>
-      </div>
-      <div class="gr-summary__tile">
-        <span class="gr-summary__count gr-summary__count--overdue">{{ summary.overdue }}</span>
-        <span class="gr-summary__label">Overdue</span>
-      </div>
+    <!-- ── Overdue alert banner ───────────────────────────────────────────────── -->
+    <div v-if="hasOverdue" class="gr-overdue-banner">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="gr-overdue-banner__icon">
+        <circle cx="8" cy="8" r="7.25" stroke="#dc2626" stroke-width="1.5"/>
+        <path d="M8 5v3.5" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r="0.75" fill="#dc2626"/>
+      </svg>
+      One or more remittances in this view are overdue. File immediately to avoid penalties.
     </div>
 
-    <!-- ── Filter bar ────────────────────────────────────────────────────── -->
+    <!-- ── Filter bar ────────────────────────────────────────────────────────── -->
     <div class="gr-filters">
-      <div class="gr-filters__inputs">
+      <div class="gr-filters__selects">
         <spr-select
-          id="type-filter"
-          v-model="typeFilter"
-          :options="typeOptions"
-          textField="text"
-          valueField="value"
+          id="agency-filter"
+          v-model="agencyFilter"
+          :options="agencyOptions"
           label=""
-          placeholder="Contribution type"
-          class="gr-filters__select"
+          placeholder="All agencies"
+          :clearable="true"
         />
         <spr-select
           id="period-filter"
           v-model="periodFilter"
           :options="periodOptions"
-          textField="text"
-          valueField="value"
           label=""
-          placeholder="Period"
-          class="gr-filters__select"
+          placeholder="All periods"
+          :clearable="true"
         />
-        <button
+      </div>
+
+      <div class="gr-filters__right">
+        <span class="gr-filters__count">
+          {{ totalItems }} record{{ totalItems !== 1 ? 's' : '' }}
+          <template v-if="filedTotal > 0">
+            · <span class="gr-filters__total">
+                ₱{{ filedTotal.toLocaleString('en-PH', { minimumFractionDigits: 2 }) }} filed
+              </span>
+          </template>
+        </span>
+        <spr-button
           v-if="hasActiveFilters"
-          class="gr-filters__clear"
+          variant="tertiary"
+          size="small"
           @click="clearFilters"
         >
           Clear filters
-        </button>
-      </div>
-
-      <!-- Active filter chips -->
-      <div v-if="hasActiveFilters" class="gr-filters__chips">
-        <span v-if="typeFilter"   class="gr-filters__chip">{{ typeFilter }}</span>
-        <span v-if="periodFilter" class="gr-filters__chip">
-          {{ periodOptions.find(o => o.value === periodFilter)?.text }}
-        </span>
+        </spr-button>
       </div>
     </div>
 
-    <!-- ── Table ─────────────────────────────────────────────────────────── -->
+    <!-- ── Remittance table ──────────────────────────────────────────────────── -->
     <div class="gr-table-wrap">
       <spr-table
         :headers="headers"
-        :dataTable="tableData"
+        :dataTable="pagedData"
         :emptyState="{
-          description: 'No remittance records found',
-          subDescription: 'Try adjusting the contribution type or period filter.',
+          description: 'No remittance records match your filters',
+          subDescription: 'Try selecting a different agency or period.',
           image: 'list',
           size: 'large',
         }"
       >
-        <!-- Contribution type — lozenge -->
-        <template #type="{ row }">
+        <!-- Status column — lozenge per filing state -->
+        <template #_status="{ row }">
           <spr-lozenge
-            :label="(row as any)._type"
-            :tone="typeTone((row as any)._type)"
+            :label="(row._status as any).title"
+            :tone="statusTone((row._status as any).title)"
+            :fill="statusFill((row._status as any).title)"
           />
         </template>
 
-        <!-- Status — lozenge -->
-        <template #status="{ row }">
-          <spr-lozenge
-            :label="(row as any)._status"
-            :tone="statusTone((row as any)._status)"
-            :fill="statusFill((row as any)._status)"
+        <!-- Pagination in footer slot -->
+        <template #footer>
+          <spr-table-pagination
+            v-model:selectedRowCount="rowCount"
+            v-model:currentPage="currentPage"
+            :totalItems="totalItems"
+            :dropdownSelection="dropdownOptions"
           />
         </template>
       </spr-table>
@@ -232,16 +248,16 @@ function typeTone(type: string): string {
 
 <style scoped>
 .gr-page {
-  max-width: 1280px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 40px 32px 80px;
   font-family: 'Rubik', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────────────── */
 .gr-header__eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -249,13 +265,6 @@ function typeTone(type: string): string {
   text-transform: uppercase;
   color: #158039;
   margin-bottom: 8px;
-}
-
-.gr-header__row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
 }
 
 .gr-header__title {
@@ -271,95 +280,60 @@ function typeTone(type: string): string {
   margin: 0;
 }
 
-/* ── Summary tiles ──────────────────────────────────────────────────────── */
-.gr-summary {
+/* ── Overdue banner ──────────────────────────────────────────────────────── */
+.gr-overdue-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #7f1d1d;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.gr-overdue-banner__icon {
+  flex-shrink: 0;
+}
+
+/* ── Filter bar ──────────────────────────────────────────────────────────── */
+.gr-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gr-filters__selects {
   display: flex;
   gap: 12px;
 }
 
-.gr-summary__tile {
-  flex: 1;
+.gr-filters__selects > * {
+  width: 180px;
+}
+
+.gr-filters__right {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 16px 12px;
-  border-radius: 8px;
-  border: 1px solid #d9dede;
-  background: #fff;
+  gap: 12px;
 }
 
-.gr-summary__count {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.gr-summary__label {
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.gr-filters__count {
+  font-size: 13px;
   color: #5d6c6b;
 }
 
-.gr-summary__count--filed      { color: #158039; }
-.gr-summary__count--processing { color: #0592b5; }
-.gr-summary__count--pending    { color: #d97706; }
-.gr-summary__count--overdue    { color: #da2f38; }
-
-/* ── Filters ────────────────────────────────────────────────────────────── */
-.gr-filters {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.gr-filters__total {
+  color: #158039;
+  font-weight: 600;
 }
 
-.gr-filters__inputs {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.gr-filters__select {
-  width: 220px;
-  flex-shrink: 0;
-}
-
-.gr-filters__clear {
-  font-size: 13px;
-  color: #da2f38;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font-family: inherit;
-  font-weight: 500;
-  text-decoration: underline;
-  flex-shrink: 0;
-}
-
-.gr-filters__clear:hover { color: #b61f27; }
-
-.gr-filters__chips {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.gr-filters__chip {
-  font-size: 12px;
-  background: #dcfce6;
-  color: #14532b;
-  border-radius: 100px;
-  padding: 2px 10px;
-  font-weight: 500;
-}
-
-/* ── Table ──────────────────────────────────────────────────────────────── */
+/* ── Table ───────────────────────────────────────────────────────────────── */
 .gr-table-wrap {
-  height: 600px;
+  height: 540px;
   width: 100%;
 }
 </style>

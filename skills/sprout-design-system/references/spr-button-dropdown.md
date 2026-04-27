@@ -1,61 +1,149 @@
-# spr-button-dropdown
+# `spr-button-dropdown` Reference Card
+**Design System Next v2.27.9 · Browser-verified 2026-04-23**
 
-## Overview
-A subcomponent of `spr-button` that adds a multi-select dropdown menu to a button. Must always be nested inside `spr-button` — it cannot be used standalone.
+---
 
-## Usage
+## Basic Usage
 
 ```vue
-<spr-button variant="primary">
-  Actions
+<template>
   <spr-button-dropdown
-    :model-value="selected"
-    dropdown-id="dropdown-1"
+    dropdown-id="actions"
+    v-model="selected"
     :menu-list="menuItems"
-    @update:model-value="onSelect"
-  />
-</spr-button>
-```
+    width="160px"
+    popper-width="160px"
+    @click="handleMainClick"
+  >
+    Actions
+  </spr-button-dropdown>
+</template>
 
-```js
+<script setup lang="ts">
+import { ref } from 'vue'
+
 const selected = ref([])
 
 const menuItems = [
-  { label: 'Option 1', value: 'opt1' },
-  { label: 'Option 2', value: 'opt2' },
-  { label: 'Option 3', value: 'opt3' },
+  { text: 'Add', value: 'add' },
+  { text: 'Edit', value: 'edit' },
+  { text: 'Delete', value: 'delete' },
 ]
 
-const onSelect = (item) => {
-  const exists = selected.value.findIndex(i => i.value === item.value)
-  if (exists >= 0) {
-    selected.value.splice(exists, 1)
-  } else {
-    selected.value.push(item)
-  }
-}
+const handleMainClick = () => console.log('main button clicked')
+</script>
 ```
+
+---
 
 ## Props
 
-| Prop | Type | Required | Description |
-|---|---|---|---|
-| `modelValue` | `Array` | Yes | Array of selected items. Each item is a full `{ label, value }` object. |
-| `dropdownId` | `String` | Yes | Unique identifier for the dropdown instance. |
-| `menuList` | `Array` | Yes | List of options. Each item must be `{ label: string, value: string }`. |
+| Prop | Type | Default | Required | Notes |
+|---|---|---|---|---|
+| `dropdownId` | `string` | — | **Yes** | Unique identifier for the dropdown instance. Must be unique per page when using multiple instances. |
+| `modelValue` | `MenuListType[] \| string[] \| Record<string, unknown>[]` | `[]` | No | Currently selected items. Use with `v-model`. |
+| `menuList` | `MenuListType[] \| string[] \| Record<string, unknown>[]` | `[]` | No | Options to display in the dropdown. Each item must use `{ text, value }` shape — see MenuListType below. |
+| `tone` | `'neutral' \| 'success'` | `'neutral'` | No | Color theme. `danger` is not available. |
+| `variant` | `'primary' \| 'secondary'` | `'primary'` | No | Visual style. `tertiary` is not available. |
+| `size` | `'small' \| 'medium' \| 'large'` | `'medium'` | No | Size of the button dropdown. |
+| `disabled` | `boolean` | `false` | No | Disables both the main button and the dropdown trigger. |
+| `width` | `string` | `'fit-content'` | No | Width of the entire component. |
+| `popper-width` | `string` | `'fit-content'` | No | Width of the dropdown menu. |
+| `popper-inner-width` | `string` | `'unset'` | No | Width of the inner content area of the dropdown. |
+| `placement` | `'auto' \| 'auto-start' \| 'auto-end' \| 'top' \| 'top-start' \| 'top-end' \| 'right' \| 'right-start' \| 'right-end' \| 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'left' \| 'left-start' \| 'left-end'` | `'bottom'` | No | Position of the dropdown relative to the button. |
 
-## Behavior
+---
 
-- **Multi-select** — each option click emits a single selected `{ label, value }` object via `update:modelValue`. The parent is responsible for maintaining the array (adding/removing items).
-- **Do not use `v-model` directly** — the component emits a single object, not the updated array. Use `:model-value` + `@update:model-value` and handle accumulation manually.
-- **Button label is static** — the label inside `spr-button` does not update to reflect selections. Manage label text in the parent if dynamic labels are needed.
-- The `aria-hidden` console warning on dropdown open/close is internal to the component. Ignore it.
+## Slots
 
-## Constraints
+| Slot | Description |
+|---|---|
+| `default` | Content for the main (left) button label. |
 
-- Must be nested inside `spr-button` — standalone use renders a ghost trigger element.
-- No slots — content is driven entirely by `menuList`.
-- `dropdownId` must be unique per page if multiple instances are used.
+---
 
-## Verified
-Design System Next v2.27.9 · April 2026
+## Emits
+
+| Event | Payload | Notes |
+|---|---|---|
+| `click` | `MouseEvent` | Emitted when the main (left) button is clicked. |
+| `update:modelValue` | `string \| number` | Emitted when a dropdown item is selected. Payload is the **value** of the selected item, not the full object. |
+
+---
+
+## MenuListType
+
+```typescript
+type MenuListType = {
+  text: string;           // Required — display label in the dropdown
+  value: string | number; // Required — emitted on selection
+  icon?: string;          // Iconify icon name
+  iconColor?: string;     // Tailwind class for icon color
+  textColor?: string;     // Tailwind class for item text color
+  onClickFn?: () => void; // Optional click handler on the item itself
+  disabled?: boolean;
+  subtext?: string;
+  subvalue?: string;
+  sublevel?: MenuListType[];
+  group?: string;
+};
+```
+
+---
+
+## Common Patterns
+
+**Basic actions menu:**
+```vue
+<spr-button-dropdown
+  dropdown-id="row-actions"
+  v-model="selected"
+  :menu-list="[
+    { text: 'Edit', value: 'edit' },
+    { text: 'Delete', value: 'delete', textColor: 'spr-text-color-danger-base' },
+  ]"
+  @update:model-value="(val) => handleAction(val)"
+>
+  Actions
+</spr-button-dropdown>
+```
+
+**With icons:**
+```vue
+<spr-button-dropdown
+  dropdown-id="actions-icon"
+  v-model="selected"
+  :menu-list="[
+    { text: 'Add', value: 'add', icon: 'ph:plus', iconColor: 'spr-text-color-supporting' },
+    { text: 'Delete', value: 'delete', icon: 'ph:trash', textColor: 'spr-text-color-danger-base' },
+  ]"
+>
+  Actions
+</spr-button-dropdown>
+```
+
+---
+
+## Verified Behaviors
+
+- ✅ `{ text, value }` is the correct `menuList` item shape — renders item text correctly
+- ✅ `{ label, value }` is **wrong** — renders all items as "Unnamed"
+- ✅ `update:modelValue` emits the raw **value** string (e.g. `"add"`), not the full item object
+- ✅ Works standalone — does **not** require a parent `spr-button` wrapper
+- ✅ `default` slot sets the main button label
+- ✅ Right side caret always opens the dropdown; left side emits `@click`
+- ⚠️ `modelValue` expects `Array` but emit returns a string — Vue will warn `Expected Array, got String`. This is a component-internal inconsistency; non-blocking.
+- ⚠️ `aria-hidden` console warning on dropdown open/close is internal — safe to ignore
+
+---
+
+## Global Patterns
+
+- **Kebab-case tag** — `<spr-button-dropdown>`, never `<SprButtonDropdown>`
+- **No component imports** — never `import { SprButtonDropdown }`. No types to import for this component.
+- **Props are camelCase in template** — `:dropdownId`, `:menuList`, `:popperWidth`
+
+---
+
+## MCP Warning
+`get_component` returns a `usageExample` generated from metadata — it is **not verified** and contains errors (PascalCase tag, direct component import, missing required props). Always verify in the test harness.

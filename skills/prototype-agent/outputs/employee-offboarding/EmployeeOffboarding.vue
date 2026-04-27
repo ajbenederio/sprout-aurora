@@ -2,211 +2,181 @@
 import { ref, computed } from 'vue'
 import type { Header } from 'design-system-next'
 
-// ─── Employee info ───────────────────────────────────────────────────────────
-const employee = {
-  name:           'Angelo Bautista',
-  position:       'Sales Executive',
-  department:     'Sales',
-  employeeId:     'EMP-00210',
-  lastWorkingDay: 'April 30, 2026',
-  resignationDate:'April 8, 2026',
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface ClearanceItem {
+  id:           number
+  department:   string
+  item:         string
+  assignedTo:   string
+  status:       string
+  _department:  { title: string }
+  _item:        { title: string }
+  _assignedTo:  { title: string }
+  _status:      { title: string }
 }
 
-// ─── Clearance table ─────────────────────────────────────────────────────────
+function ci(
+  id: number, dept: string, item: string, assignedTo: string, status: string
+): ClearanceItem {
+  return {
+    id, department: dept, item, assignedTo, status,
+    _department: { title: dept       },
+    _item:       { title: item       },
+    _assignedTo: { title: assignedTo },
+    _status:     { title: status     },
+  }
+}
+
+// ─── Clearance items ──────────────────────────────────────────────────────────
+const clearanceItems = ref<ClearanceItem[]>([
+  ci(1, 'IT',          'Equipment Return',         'IT Support',        'Pending'),
+  ci(2, 'IT',          'System Access Revocation',  'IT Support',       'Pending'),
+  ci(3, 'HR',          'Exit Interview',            'HR Manager',       'In Progress'),
+  ci(4, 'HR',          'Benefits Termination',      'HR Specialist',    'Pending'),
+  ci(5, 'Finance',     'Final Payroll Review',      'Payroll Team',     'Pending'),
+  ci(6, 'Finance',     'Expense Reimbursement',     'Finance Manager',  'Cleared'),
+  ci(7, 'Legal',       'NDA & IP Agreement Review', 'Legal Counsel',    'Blocked'),
+])
+
+// ─── Table headers ────────────────────────────────────────────────────────────
 const headers = ref<Header[]>([
-  { field: 'item',       name: 'Clearance Item', sort: false },
-  { field: 'department', name: 'Department',      sort: true  },
-  { field: 'assignedTo', name: 'Assigned To',     sort: false },
-  { field: 'dueDate',    name: 'Due Date',         sort: true  },
-  { field: 'status',     name: 'Status'                        },
+  { field: '_department', name: 'Department',     sort: true  },
+  { field: '_item',       name: 'Clearance Item', sort: false },
+  { field: '_assignedTo', name: 'Assigned To',    sort: false },
+  { field: '_status',     name: 'Status'                      },
 ])
 
-const clearanceItems = ref([
-  {
-    id: 1,
-    item:       { title: 'Return laptop and accessories'    },
-    department: { title: 'IT'                               },
-    assignedTo: { title: 'Mark Dela Cruz'                   },
-    dueDate:    { title: 'Apr 28, 2026'                     },
-    status:     { title: 'Pending'                          },
-  },
-  {
-    id: 2,
-    item:       { title: 'Deactivate system accounts'       },
-    department: { title: 'IT'                               },
-    assignedTo: { title: 'Mark Dela Cruz'                   },
-    dueDate:    { title: 'Apr 30, 2026'                     },
-    status:     { title: 'Pending'                          },
-  },
-  {
-    id: 3,
-    item:       { title: 'Return company ID and access card' },
-    department: { title: 'Admin'                            },
-    assignedTo: { title: 'Carla Santos'                     },
-    dueDate:    { title: 'Apr 28, 2026'                     },
-    status:     { title: 'Completed'                        },
-  },
-  {
-    id: 4,
-    item:       { title: 'Final pay computation'            },
-    department: { title: 'Payroll'                          },
-    assignedTo: { title: 'Jennifer Ramos'                   },
-    dueDate:    { title: 'May 30, 2026'                     },
-    status:     { title: 'In Progress'                      },
-  },
-  {
-    id: 5,
-    item:       { title: 'Knowledge transfer documentation' },
-    department: { title: 'Sales'                            },
-    assignedTo: { title: 'Ronald Mercado'                   },
-    dueDate:    { title: 'Apr 25, 2026'                     },
-    status:     { title: 'In Progress'                      },
-  },
-  {
-    id: 6,
-    item:       { title: 'Department head clearance sign-off'},
-    department: { title: 'Sales'                            },
-    assignedTo: { title: 'Ronald Mercado'                   },
-    dueDate:    { title: 'Apr 29, 2026'                     },
-    status:     { title: 'Pending'                          },
-  },
-  {
-    id: 7,
-    item:       { title: 'HR clearance form submission'     },
-    department: { title: 'Human Resources'                  },
-    assignedTo: { title: 'Cristina Palma'                   },
-    dueDate:    { title: 'Apr 29, 2026'                     },
-    status:     { title: 'Pending'                          },
-  },
-  {
-    id: 8,
-    item:       { title: 'Exit interview'                   },
-    department: { title: 'Human Resources'                  },
-    assignedTo: { title: 'Cristina Palma'                   },
-    dueDate:    { title: 'Apr 28, 2026'                     },
-    status:     { title: 'Completed'                        },
-  },
-  {
-    id: 9,
-    item:       { title: 'Finance expense report clearance' },
-    department: { title: 'Finance'                          },
-    assignedTo: { title: 'Grace Tan'                        },
-    dueDate:    { title: 'Apr 26, 2026'                     },
-    status:     { title: 'Not Required'                     },
-  },
-])
+// ─── Clearance progress ───────────────────────────────────────────────────────
+const clearedCount  = computed(() => clearanceItems.value.filter(i => i.status === 'Cleared').length)
+const totalCount    = computed(() => clearanceItems.value.length)
+const allCleared    = computed(() => clearedCount.value === totalCount.value)
+const hasBlocked    = computed(() => clearanceItems.value.some(i => i.status === 'Blocked'))
 
-// ─── Status lozenge mapping ──────────────────────────────────────────────────
-function statusTone(status: string): string {
-  if (status === 'Completed')    return 'success'
-  if (status === 'In Progress')  return 'information'
-  if (status === 'Pending')      return 'caution'
-  return 'neutral' // Not Required
+// ─── Resignation modal ────────────────────────────────────────────────────────
+const showModal     = ref(false)
+const isConfirmed   = ref(false)
+
+// Effective date = 30 calendar days from today
+const effectiveDate = computed(() => {
+  const d = new Date()
+  d.setDate(d.getDate() + 30)
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+})
+
+function confirmResignation() {
+  showModal.value   = false
+  isConfirmed.value = true
 }
 
-// ─── Progress summary ────────────────────────────────────────────────────────
-const completedCount = computed(() =>
-  clearanceItems.value.filter(i => i.status.title === 'Completed' || i.status.title === 'Not Required').length
-)
-const totalCount = computed(() => clearanceItems.value.length)
+// ─── Status lozenge helpers ───────────────────────────────────────────────────
+function statusTone(status: string): string {
+  if (status === 'Cleared')     return 'success'
+  if (status === 'In Progress') return 'information'
+  if (status === 'Pending')     return 'caution'
+  if (status === 'Blocked')     return 'danger'
+  return 'neutral'
+}
 
-// ─── Confirmation modal ──────────────────────────────────────────────────────
-const showConfirmModal = ref(false)
-const isConfirmed      = ref(false)
-
-function handleConfirm() {
-  isConfirmed.value     = true
-  showConfirmModal.value = false
+function statusFill(status: string): boolean {
+  return status === 'Cleared'
 }
 </script>
 
 <template>
   <div class="ob-page">
 
-    <!-- ── Page header ───────────────────────────────────────────────────── -->
+    <!-- ── Page header ───────────────────────────────────────────────────────── -->
     <div class="ob-header">
       <div class="ob-header__eyebrow">Offboarding</div>
       <div class="ob-header__row">
         <div>
-          <h1 class="ob-header__title">{{ employee.name }}</h1>
-          <p class="ob-header__meta">
-            {{ employee.position }} · {{ employee.department }} · {{ employee.employeeId }}
+          <h1 class="ob-header__title">Employee Offboarding</h1>
+          <p class="ob-header__subtitle">
+            Track pending clearance requirements before processing the final resignation.
           </p>
         </div>
-        <spr-button
-          variant="primary"
-          tone="danger"
-          :disabled="isConfirmed"
-          @click="showConfirmModal = true"
-        >
-          {{ isConfirmed ? 'Resignation confirmed' : 'Confirm resignation' }}
-        </spr-button>
+
+        <!-- Progress pill -->
+        <div class="ob-header__progress">
+          <span class="ob-header__progress-label">Clearance progress</span>
+          <spr-lozenge
+            :label="`${clearedCount} / ${totalCount} cleared`"
+            :tone="allCleared ? 'success' : 'caution'"
+            :fill="allCleared"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- ── Status banner ─────────────────────────────────────────────────── -->
+    <!-- ── Blocked warning banner ─────────────────────────────────────────────── -->
+    <div v-if="hasBlocked" class="ob-warning-banner">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="ob-warning-banner__icon">
+        <circle cx="8" cy="8" r="7.25" stroke="#b45309" stroke-width="1.5"/>
+        <path d="M8 5v3.5" stroke="#b45309" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r="0.75" fill="#b45309"/>
+      </svg>
+      One or more clearance items are blocked. Resolve them before confirming resignation.
+    </div>
+
+    <!-- ── Clearance table ───────────────────────────────────────────────────── -->
+    <div class="ob-table-wrap">
+      <spr-table
+        :headers="headers"
+        :dataTable="clearanceItems"
+        :emptyState="{
+          description: 'No clearance items found',
+          subDescription: 'All offboarding tasks will appear here.',
+          image: 'location',
+          size: 'large',
+        }"
+      >
+        <!-- Status column — lozenge per clearance state -->
+        <template #_status="{ row }">
+          <spr-lozenge
+            :label="(row._status as any).title"
+            :tone="statusTone((row._status as any).title)"
+            :fill="statusFill((row._status as any).title)"
+          />
+        </template>
+      </spr-table>
+    </div>
+
+    <!-- ── Action bar ────────────────────────────────────────────────────────── -->
+    <!-- Confirmed state: show submitted banner -->
     <div v-if="isConfirmed" class="ob-confirmed-banner">
-      <span class="ob-confirmed-banner__icon">✓</span>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="9" fill="#dcfce6"/>
+        <path d="M5 9.5L7.5 12L13 7" stroke="#158039" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
       <div>
         <p class="ob-confirmed-banner__title">Resignation confirmed</p>
-        <p class="ob-confirmed-banner__desc">
-          Last working day is <strong>{{ employee.lastWorkingDay }}</strong>.
-          Offboarding is now in progress.
+        <p class="ob-confirmed-banner__subtitle">
+          Effective date: {{ effectiveDate }}. HR has been notified and final pay processing will begin
+          once all clearance items are marked cleared.
         </p>
       </div>
     </div>
 
-    <!-- ── Key dates card ────────────────────────────────────────────────── -->
-    <div class="ob-dates">
-      <div class="ob-dates__item">
-        <span class="ob-dates__label">Resignation Date</span>
-        <span class="ob-dates__value">{{ employee.resignationDate }}</span>
-      </div>
-      <div class="ob-dates__divider" />
-      <div class="ob-dates__item">
-        <span class="ob-dates__label">Last Working Day</span>
-        <span class="ob-dates__value">{{ employee.lastWorkingDay }}</span>
-      </div>
-      <div class="ob-dates__divider" />
-      <div class="ob-dates__item">
-        <span class="ob-dates__label">Clearance Progress</span>
-        <span class="ob-dates__value ob-dates__value--progress">
-          {{ completedCount }} / {{ totalCount }} items cleared
-        </span>
-      </div>
-    </div>
-
-    <!-- ── Clearance table ───────────────────────────────────────────────── -->
-    <div class="ob-section">
-      <h2 class="ob-section__title">Clearance Checklist</h2>
-      <p class="ob-section__subtitle">
-        All items must be cleared before final pay is released.
+    <!-- Pending state: show confirm button -->
+    <div v-else class="ob-actions">
+      <p class="ob-actions__note">
+        Confirming resignation will notify HR and begin final pay processing.
       </p>
-
-      <div class="ob-table-wrap">
-        <spr-table
-          :headers="headers"
-          :dataTable="clearanceItems"
-          :emptyState="{
-            description: 'No clearance items found',
-            size: 'large',
-          }"
-        >
-          <!-- Status column — lozenge with tone -->
-          <template #status="{ row }">
-            <spr-lozenge
-              :label="(row.status as any).title"
-              :tone="statusTone((row.status as any).title)"
-              :fill="(row.status as any).title === 'Completed'"
-            />
-          </template>
-        </spr-table>
-      </div>
+      <spr-button
+        variant="primary"
+        tone="danger"
+        :disabled="hasBlocked"
+        @click="showModal = true"
+      >
+        Confirm resignation
+      </spr-button>
     </div>
 
-    <!-- ── Confirm resignation modal ────────────────────────────────────── -->
+    <!-- ── Confirm resignation modal ─────────────────────────────────────────── -->
+    <!-- staticBackdrop=true: user must explicitly choose Cancel or Confirm -->
     <spr-modal
-      v-model="showConfirmModal"
+      v-model="showModal"
       title="Confirm Resignation"
       size="sm"
       :staticBackdrop="true"
@@ -214,41 +184,40 @@ function handleConfirm() {
       <template #default>
         <div class="ob-modal-body">
 
-          <!-- Warning block -->
-          <div class="ob-modal-warning">
-            <span class="ob-modal-warning__icon">⚠</span>
-            <p class="ob-modal-warning__text">
-              This action will officially record the resignation of
-              <strong>{{ employee.name }}</strong> and cannot be undone.
-            </p>
+          <!-- Warning icon -->
+          <div class="ob-modal-body__icon">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <circle cx="20" cy="20" r="20" fill="#fef3c7"/>
+              <path d="M20 13v8" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="20" cy="26" r="1.2" fill="#d97706"/>
+            </svg>
           </div>
 
-          <p class="ob-modal-detail">
-            Confirming will trigger the offboarding workflow and notify all assigned
-            clearance officers. The employee's last working day will be set to
-            <strong>{{ employee.lastWorkingDay }}</strong>.
+          <p class="ob-modal-body__lead">
+            You are about to formally confirm this employee's resignation.
+            <strong>This action cannot be undone.</strong>
           </p>
 
-          <ul class="ob-modal-checklist">
-            <li>All clearance items will be activated for processing</li>
-            <li>Payroll will be notified to begin final pay computation</li>
-            <li>IT will schedule account deactivation on the last working day</li>
+          <ul class="ob-modal-body__list">
+            <li>Effective date will be set to <strong>{{ effectiveDate }}</strong></li>
+            <li>All system access will be scheduled for revocation on the effective date</li>
+            <li>Final pay computation will begin once all clearance items are cleared</li>
+            <li>HR and the employee's department head will be notified immediately</li>
           </ul>
+
+          <p class="ob-modal-body__note">
+            Make sure all pending clearance items are tracked before proceeding.
+            Blocked items must be resolved separately.
+          </p>
+
         </div>
       </template>
 
       <template #footer>
-        <spr-button
-          variant="secondary"
-          @click="showConfirmModal = false"
-        >
+        <spr-button variant="secondary" @click="showModal = false">
           Cancel
         </spr-button>
-        <spr-button
-          variant="primary"
-          tone="danger"
-          @click="handleConfirm"
-        >
+        <spr-button variant="primary" tone="danger" @click="confirmResignation">
           Yes, confirm resignation
         </spr-button>
       </template>
@@ -265,10 +234,10 @@ function handleConfirm() {
   font-family: 'Rubik', sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────── */
+/* ── Header ──────────────────────────────────────────────────────────────── */
 .ob-header__eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -292,153 +261,129 @@ function handleConfirm() {
   margin: 0 0 4px;
 }
 
-.ob-header__meta {
+.ob-header__subtitle {
   font-size: 14px;
   color: #5d6c6b;
   margin: 0;
 }
 
-/* ── Confirmed banner ───────────────────────────────────────────────────── */
+.ob-header__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ob-header__progress-label {
+  font-size: 12px;
+  color: #5d6c6b;
+}
+
+/* ── Blocked warning banner ──────────────────────────────────────────────── */
+.ob-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.ob-warning-banner__icon {
+  flex-shrink: 0;
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.ob-table-wrap {
+  height: 480px;
+  width: 100%;
+}
+
+/* ── Actions bar ─────────────────────────────────────────────────────────── */
+.ob-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.ob-actions__note {
+  font-size: 13px;
+  color: #5d6c6b;
+  margin: 0;
+}
+
+/* ── Confirmed banner ────────────────────────────────────────────────────── */
 .ob-confirmed-banner {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7ce;
-  border-radius: 8px;
+  gap: 12px;
   padding: 16px 20px;
-}
-
-.ob-confirmed-banner__icon {
-  font-size: 18px;
-  color: #158039;
-  flex-shrink: 0;
-  line-height: 1.5;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 8px;
 }
 
 .ob-confirmed-banner__title {
   font-size: 14px;
   font-weight: 600;
-  color: #00291b;
-  margin: 0 0 2px;
-}
-
-.ob-confirmed-banner__desc {
-  font-size: 13px;
-  color: #5d6c6b;
-  margin: 0;
-}
-
-/* ── Key dates ──────────────────────────────────────────────────────────── */
-.ob-dates {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  background: #fff;
-  border: 1px solid #d9dede;
-  border-radius: 8px;
-  padding: 20px 28px;
-}
-
-.ob-dates__item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.ob-dates__divider {
-  width: 1px;
-  height: 36px;
-  background: #d9dede;
-  margin: 0 28px;
-  flex-shrink: 0;
-}
-
-.ob-dates__label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #5d6c6b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.ob-dates__value {
-  font-size: 15px;
-  font-weight: 600;
-  color: #00291b;
-}
-
-.ob-dates__value--progress {
-  color: #158039;
-}
-
-/* ── Section ────────────────────────────────────────────────────────────── */
-.ob-section__title {
-  font-size: 17px;
-  font-weight: 600;
-  color: #00291b;
+  color: #14532b;
   margin: 0 0 4px;
 }
 
-.ob-section__subtitle {
+.ob-confirmed-banner__subtitle {
   font-size: 13px;
-  color: #5d6c6b;
-  margin: 0 0 16px;
+  color: #166534;
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* Height wrapper — required for spr-table */
-.ob-table-wrap {
-  height: 520px;
-  width: 100%;
-}
-
-/* ── Modal body ─────────────────────────────────────────────────────────── */
+/* ── Modal body ──────────────────────────────────────────────────────────── */
 .ob-modal-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-.ob-modal-warning {
+.ob-modal-body__icon {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  background: #fef2f3; /* tomato-50 */
-  border: 1px solid #fdcbce; /* tomato-200 */
-  border-radius: 6px;
-  padding: 12px 16px;
+  justify-content: center;
+  padding-bottom: 4px;
 }
 
-.ob-modal-warning__icon {
-  font-size: 18px;
-  color: #da2f38; /* tomato-600 */
-  flex-shrink: 0;
-  line-height: 1.4;
-}
-
-.ob-modal-warning__text {
+.ob-modal-body__lead {
   font-size: 14px;
-  color: #440b0e; /* tomato-950 */
+  color: #262b2b;
   line-height: 1.6;
   margin: 0;
 }
 
-.ob-modal-detail {
-  font-size: 14px;
-  color: #262b2b;
-  line-height: 1.7;
-  margin: 0;
-}
-
-.ob-modal-checklist {
+.ob-modal-body__list {
   font-size: 13px;
-  color: #5d6c6b;
+  color: #262b2b;
   line-height: 1.8;
   padding-left: 18px;
   margin: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.ob-modal-body__note {
+  font-size: 12px;
+  color: #5d6c6b;
+  background: #eff1f1;
+  border-left: 3px solid #b8c1c0;
+  padding: 8px 12px;
+  border-radius: 0 4px 4px 0;
+  margin: 0;
 }
 </style>
